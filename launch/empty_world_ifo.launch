@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<launch>
+
+<!-- gazebo configs -->
+    <arg name="gui" default="true"/>
+    <arg name="debug" default="false"/>
+    <arg name="verbose" default="false"/>
+    <arg name="paused" default="false"/>
+    <arg name="emulate_mocap" default="true"/>
+
+    <!-- =================================================================== -->
+    <!-- Start Gazebo -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="gui" value="$(arg gui)"/>
+        <arg name="debug" value="$(arg debug)"/>
+        <arg name="verbose" value="$(arg verbose)"/>
+        <arg name="paused" value="$(arg paused)"/>
+        <!--<arg name="world_name" value="$(find quad_agent)/worlds/empty_world.world"/>-->
+    </include>
+    
+    
+    <!-- ================================================================== -->
+    <!-- Spawn vehicle -->
+    <param name="robot_id" type="str" value="ifo001" />
+    <include file="$(find ifo_gazebo)/launch/ifo_spawn_single.launch">
+        <arg name="namespace" value="agent"/> 
+        <arg name="interactive" value="true"/>
+        <arg name="camera" value="true"/>
+        <arg name="lidar" value="true"/>
+
+        <arg name="emulate_mocap" value="$(arg emulate_mocap)"/>
+    </include>
+
+</launch>
