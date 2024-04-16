@@ -25,10 +25,14 @@
     <include file="$(find ifo_gazebo)/launch/ifo_spawn_single.launch">
         <arg name="namespace" value="agent"/> 
         <arg name="interactive" value="true"/>
-        <arg name="camera" value="true"/>
+        <arg name="camera" value="false"/>
         <arg name="lidar" value="true"/>
 
         <arg name="emulate_mocap" value="$(arg emulate_mocap)"/>
     </include>
+
+  <node name="hover_node" type="hover_node" pkg="quad_agent" output = "screen"/>
+
+
 
 </launch>
