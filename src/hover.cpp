@@ -63,6 +63,7 @@ int main(int argc, char **argv) {
     arm_cmd.request.value = true;
 
     ros::Time last_request = ros::Time::now();
+    ros::Time start_time = ros::Time::now();
 
     while (ros::ok()) {
         if( current_state.mode != "OFFBOARD" &&
@@ -84,7 +85,8 @@ int main(int argc, char **argv) {
         }
 
         // Generate circular trajectory (radius = 1.0, angular_speed = 0.1)
-        geometry_msgs::PoseStamped new_pose = generateCircularTrajectory(1.0, 0.1);
+        // geometry_msgs::PoseStamped new_pose = generateCircularTrajectory(1.0, 0.1);
+        geometry_msgs::PoseStamped new_pose = generateHelixTrajectory(1.0, 0.1, 3.0, start_time.toSec());
 
         // to set a pose to a drone
         local_pos_pub.publish(new_pose);
