@@ -125,22 +125,26 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/quad_agent.cpp
-# )
+
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
 # add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-# add_dependencies(hover_node quad_agent)
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/quad_agent_node.cpp)
 
-add_executable(hover_node src/hover.cpp)
+add_executable(hover_node src/hover.cpp )
+
+
+## Declare a C++ library
+# add_library(${PROJECT_NAME}
+#   src/${PROJECT_NAME}/quad_agent.cpp
+# )
+## Build the trajectory generator library
+add_library(trajectory_generator src/trajectory_generator.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -156,7 +160,8 @@ add_executable(hover_node src/hover.cpp)
 target_link_libraries(
   # ${PROJECT_NAME}_node
   hover_node
-   ${catkin_LIBRARIES}
+  ${catkin_LIBRARIES}
+  trajectory_generator
  )
 
 #############
