@@ -1,5 +1,6 @@
 #include "hover_controller.h"
 #include "trajectory_generator.h"
+#include <mavros_msgs/PositionTarget.h>
 
 // Global variable to store LiDAR data
 // double lidar_distance = 0.0;
@@ -8,6 +9,10 @@
 void stateCallback(const mavros_msgs::State::ConstPtr& msg){
     current_state = *msg;
 }
+
+// void commandCallback(const bool& msg){
+//     start_mission = *msg;
+// }
 
 // Callback fn for pose from mavros
 // void poseCallback(const geometry_msgs::PoseStamped::C::onstPtr& msg){
@@ -27,15 +32,23 @@ int main(int argc, char **argv) {
 
     ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>
             ("mavros/state", 10, stateCallback);
+    // ros::Subscriber external_commands = nh.subscribe<bool>
+            // ("missioncommand", 10, poseCallback);
+
     // ros::Subscriber local_position_sub = nh.subscribe<geometry_msgs::PoseStamped>
     //         ("mavros/local_position/pose", 10, poseCallback);
-    ros::Publisher local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
-            ("mavros/setpoint_position/local", 10);
+
+    // ros::Publisher local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
+    //         ("mavros/setpoint_position/local", 10);
+
+    ros::Publisher pos_target_pub = nh.advertise<mavros_msgs::PositionTarget>
+            ("mavros/setpoint_raw/local", 10);
 
     ros::ServiceClient arming_client = nh.serviceClient<mavros_msgs::CommandBool>
             ("mavros/cmd/arming");
     ros::ServiceClient set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
             ("mavros/set_mode");
+
     ros::Rate rate(20.0);
 
     // wait for FCU connection
@@ -44,14 +57,44 @@ int main(int argc, char **argv) {
         rate.sleep();
     }
 
-    geometry_msgs::PoseStamped poseA;
-    poseA.pose.position.x = 0;
-    poseA.pose.position.y = 0;
-    poseA.pose.position.z = 0;
+    // geometry_msgs::PoseStamped poseA;
+    // poseA.pose.position.x = 0;
+    // poseA.pose.position.y = 0;
+    // poseA.pose.position.z = 0;
+
+
+    // Define initial and final poses
+    geometry_msgs::PoseStamped initial_pose;
+    initial_pose.pose.position.x = 0.0;
+    initial_pose.pose.position.y = 0.0;
+    initial_pose.pose.position.z = 0.0;
+
+    geometry_msgs::PoseStamped final_pose;
+    final_pose.pose.position.x = 1.0;
+    final_pose.pose.position.y = 1.0;
+    final_pose.pose.position.z = 2.0;
+
+    // Define initial and final velocities
+    geometry_msgs::Vector3 initial_velocity;
+    initial_velocity.x = 0.0;
+    initial_velocity.y = 0.0;
+    initial_velocity.z = 0.0;
+
+    geometry_msgs::Vector3 final_velocity;
+    final_velocity.x = 0.0;
+    final_velocity.y = 0.0;
+    final_velocity.z = 0.0;
+
+    mavros_msgs::PositionTarget pos_target;
+
+    // Define duration of the trajectory
+    double duration = 10.0; // 10 seconds
+    pos_target = gen_pos_msgs(initial_pose, initial_velocity);
 
     // send a few setpoints before starting
     for(int i = 100; ros::ok() && i > 0; --i){
-        local_pos_pub.publish(poseA);
+        // local_pos_pub.publish(poseA);
+        pos_target_pub.publish(pos_target);
         ros::spinOnce();
         rate.sleep();
     }
@@ -63,9 +106,11 @@ int main(int argc, char **argv) {
     arm_cmd.request.value = true;
 
     ros::Time last_request = ros::Time::now();
-    ros::Time start_time = ros::Time::now();
+    // Calculate start offset
+    double start_time = ros::Time::now().toSec();; // Start immediately
 
-    while (ros::ok()) {
+
+    while( ros::ok()  ){
         if( current_state.mode != "OFFBOARD" &&
             (ros::Time::now() - last_request > ros::Duration(5.0))){
             if( set_mode_client.call(offb_set_mode) &&
@@ -78,20 +123,22 @@ int main(int argc, char **argv) {
                 (ros::Time::now() - last_request > ros::Duration(5.0))){
                 if( arming_client.call(arm_cmd) &&
                     arm_cmd.response.success){
+                    start_time = ros::Time::now().toSec();
                     ROS_INFO("Vehicle armed");
                 }
                 last_request = ros::Time::now();
             }
         }
-
-        // Generate circular trajectory (radius = 1.0, angular_speed = 0.1)
-        // geometry_msgs::PoseStamped new_pose = generateCircularTrajectory(1.0, 0.1);
-        geometry_msgs::PoseStamped new_pose = generateHelixTrajectory(1.0, 0.1, 3.0, start_time.toSec());
-
-        // to set a pose to a drone
-        local_pos_pub.publish(new_pose);
-
-        // Spin once to handle callbacks
+            // geometry_msgs::PoseStamped new_pose = generateCircularTrajectory(2.0, 1);
+            // geometry_msgs::PoseStamped new_pose = generateHelixTrajectory(1.0, 0.1, 3.0, start_time);
+            // local_pos_pub.publish(new_pose);
+        pos_target = calculateSmoothTrajectory(initial_pose, final_pose, initial_velocity, final_velocity, duration, start_time);
+        // pos_target = gen_pos_msgs(final_pose,final_velocity);
+        pos_target_pub.publish(pos_target);
+        
+        // ROS_INFO_STREAM("curr target pose "<< pos_target);
+            
+        // pos_target_pub.publish(init_pos_target);
         ros::spinOnce();
         rate.sleep();
     }
