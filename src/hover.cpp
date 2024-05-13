@@ -107,7 +107,7 @@ int main(int argc, char **argv) {
 
     ros::Time last_request = ros::Time::now();
     // Calculate start offset
-    double start_time = ros::Time::now().toSec();; // Start immediately
+    double start_time = 0.0; // Start immediately
 
 
     while( ros::ok()  ){
@@ -123,8 +123,9 @@ int main(int argc, char **argv) {
                 (ros::Time::now() - last_request > ros::Duration(5.0))){
                 if( arming_client.call(arm_cmd) &&
                     arm_cmd.response.success){
-                    start_time = ros::Time::now().toSec();
+                    
                     ROS_INFO("Vehicle armed");
+                    start_time = ros::Time::now().toSec();
                 }
                 last_request = ros::Time::now();
             }
@@ -133,12 +134,16 @@ int main(int argc, char **argv) {
             // geometry_msgs::PoseStamped new_pose = generateHelixTrajectory(1.0, 0.1, 3.0, start_time);
             // local_pos_pub.publish(new_pose);
         pos_target = calculateSmoothTrajectory(initial_pose, final_pose, initial_velocity, final_velocity, duration, start_time);
-        // pos_target = gen_pos_msgs(final_pose,final_velocity);
         pos_target_pub.publish(pos_target);
+        // double tau = (ros::Time::now().toSec() - start_time)/duration;
+        // if (tau<1.1){
+        //     ROS_INFO_STREAM("now: "<< ros::Time::now().toSec() - start_time <<" tau: " << tau);
+        //     ROS_INFO_STREAM("curr target pose "<< pos_target);
+        // }
+
         
-        // ROS_INFO_STREAM("curr target pose "<< pos_target);
+        
             
-        // pos_target_pub.publish(init_pos_target);
         ros::spinOnce();
         rate.sleep();
     }

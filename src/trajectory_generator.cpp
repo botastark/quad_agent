@@ -91,8 +91,7 @@ mavros_msgs::PositionTarget  gen_pos_msgs(const geometry_msgs::PoseStamped& new_
 
     pos_target_.header.stamp = ros::Time::now();
     pos_target_.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
-    pos_target_.type_mask = mavros_msgs::PositionTarget::IGNORE_PX | mavros_msgs::PositionTarget::IGNORE_PY | mavros_msgs::PositionTarget::IGNORE_PZ |
-                            mavros_msgs::PositionTarget::IGNORE_AFX | mavros_msgs::PositionTarget::IGNORE_AFY | mavros_msgs::PositionTarget::IGNORE_AFZ |
+    pos_target_.type_mask = mavros_msgs::PositionTarget::IGNORE_AFX | mavros_msgs::PositionTarget::IGNORE_AFY | mavros_msgs::PositionTarget::IGNORE_AFZ |
                             mavros_msgs::PositionTarget::FORCE | mavros_msgs::PositionTarget::IGNORE_YAW | mavros_msgs::PositionTarget::IGNORE_YAW_RATE;
     pos_target_.position.x = new_pose.pose.position.x;
     pos_target_.position.y = new_pose.pose.position.y;
@@ -117,9 +116,9 @@ mavros_msgs::PositionTarget calculateSmoothTrajectory(const geometry_msgs::PoseS
     geometry_msgs::Vector3 new_velocity;
 
     double tau = (ros::Time::now().toSec() - start_time)/duration;
-    // if (start_time==0.0){
-        // tau = 0.0;
-    // }
+    if (start_time==0.0){
+        return gen_pos_msgs(initial_pose, initial_velocity);
+    }
     if (tau>=1){
         return gen_pos_msgs(final_pose,final_velocity);
     }
