@@ -1,0 +1,30 @@
+<launch>
+    <!-- Start Gazebo with PX4 SITL -->
+    <include file="$(find px4_gazebo)/launch/iris_world.launch"/>
+
+    <!-- Start MAVROS -->
+    <arg name="fcu_url" default="udp://:14540@127.0.0.1:14557"/>
+    <arg name="gcs_url" default=""/>
+    <arg name="tgt_system" default="1"/>
+    <arg name="tgt_component" default="1"/>
+    <arg name="enable_logging" default="false"/>
+    <arg name="enable_rosflight" default="false"/>
+    <arg name="respawn_mavros" default="false"/>
+    <arg name="respawn_gazebo" default="false"/>
+    <arg name="wait_for_gazebo" default="true"/>
+
+    <include file="$(find mavros)/launch/px4.launch">
+        <arg name="fcu_url" value="$(arg fcu_url)"/>
+        <arg name="gcs_url" value="$(arg gcs_url)"/>
+        <arg name="tgt_system" value="$(arg tgt_system)"/>
+        <arg name="tgt_component" value="$(arg tgt_component)"/>
+        <arg name="enable_logging" value="$(arg enable_logging)"/>
+        <arg name="enable_rosflight" value="$(arg enable_rosflight)"/>
+        <arg name="respawn" value="$(arg respawn_mavros)"/>
+        <arg name="respawn_gazebo" value="$(arg respawn_gazebo)"/>
+        <arg name="wait_for_gazebo" value="$(arg wait_for_gazebo)"/>
+    </include>
+
+    <!-- Launch your mission node -->
+    <node pkg="quad_agent" type="mission_node" name="mission_node" output="screen"/>
+</launch>
