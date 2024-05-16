@@ -8,16 +8,12 @@
 #include <mavros_msgs/CommandBool.h>
 #include <mavros_msgs/SetMode.h>
 
-// #include <ros/duration.h>
-
 // Function prototypes
 void stateCallback(const mavros_msgs::State::ConstPtr& msg);
-// void commandCallback(const bool& msg);
 // void poseCallback(const geometry_msgs::PoseStamped::ConstPtr& msg);
 // void lidarCallback(const sensor_msgs::LaserScan::ConstPtr& msg);
 
 // Global variable declarations
 mavros_msgs::State current_state;
-// bool start_mission;
 // geometry_msgs::PoseStamped current_pose;
 #endif /* HOVER_CONTROLLER_H */
