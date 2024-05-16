@@ -7,7 +7,7 @@
     <arg name="verbose" default="false"/>
     <arg name="paused" default="false"/>
     <arg name="emulate_mocap" default="true"/>
-    <arg name="headless" default="true"/>
+    
 
     <!-- =================================================================== -->
     <!-- Start Gazebo -->
@@ -16,7 +16,7 @@
         <arg name="debug" value="$(arg debug)"/>
         <arg name="verbose" value="$(arg verbose)"/>
         <arg name="paused" value="$(arg paused)"/>
-        <arg name="headless" default="$(arg headless)"/>
+        
         <!--<arg name="world_name" value="$(find quad_agent)/worlds/empty_world.world"/>-->
     </include>
     
@@ -28,7 +28,7 @@
         <arg name="namespace" value="agent"/> 
         <arg name="interactive" value="true"/>
         <arg name="camera" value="false"/>
-        <arg name="lidar" value="true"/>
+        <arg name="lidar" value="false"/>
 
         <arg name="emulate_mocap" value="$(arg emulate_mocap)"/>
     </include>
