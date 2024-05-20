@@ -1,10 +1,12 @@
 #include "mission.h"
+#include <std_msgs/Bool.h>
 // Global variables
 mavros_msgs::State current_state;
 sensor_msgs::NavSatFix current_gps;
 std_msgs::Bool is_mission_complete;
-is_mission_complete->data = false;
+
 geometry_msgs::Vector3 current_target_global;
+
 double tolerance = 0.001;
 
 
@@ -25,18 +27,18 @@ void targetCallback(const geographic_msgs::GeoPoseStamped::ConstPtr& msg) {
 }
 
 
-void missionComplete(ros::Publisher mission_complete_pub) {
+void missionComplete() {
     double dx = current_target_global.x - current_gps.latitude;
     double dy = current_target_global.y - current_gps.longitude;
     double dz = current_target_global.z - current_gps.altitude;
     double dist = sqrt(dx * dx + dy * dy + dz * dz);
     if (dist > tolerance){
-        is_mission_complete.data = false;
-        
+	    is_mission_complete.data=false;
     }else{
-        is_mission_complete.data = true;
+	    is_mission_complete.data=true;
     }
-    mission_complete_pub.publish(is_mission_complete);
+    ROS_INFO_STREAM("Dist is "<<dist<<" ; dx: "<<dx<<"; dy: "<<dy<<"; dz: "<<dz);
+    
 
 }
 
@@ -48,10 +50,16 @@ int main(int argc, char **argv) {
     ros::Subscriber gps_sub = nh_.subscribe<sensor_msgs::NavSatFix>("mavros/global_position/global", 10, gpsCallback);
     ros::Publisher mission_complete_pub = nh_.advertise<std_msgs::Bool>("mission_complete", 10);
     ros::Subscriber target_pos_sub = nh_.subscribe<geographic_msgs::GeoPoseStamped>("mavros/setpoint_position/global", 10, targetCallback);
-    ros::Rate rate(20.0);
+    ros::Rate rate(10.0);
+
+    while (ros::ok() && current_state.mode != "AUTO.TAKEOFF" && current_state.armed!=true ) {
+        ros::spinOnce();
+        rate.sleep();
+    }
 
     while(ros::ok()){
-        missionComplete(mission_complete_pub);
+        missionComplete();
+        mission_complete_pub.publish(is_mission_complete);
         ros::spinOnce();
         rate.sleep();
     }

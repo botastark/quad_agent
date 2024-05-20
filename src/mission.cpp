@@ -58,6 +58,27 @@ void takePicture(ros::Publisher& take_picture_pub) {
     take_picture_pub.publish(msg);
 }
 
+
+const double EARTH_RADIUS = 6378137.0; // in meters (WGS-84 Earth radius)
+const double DEG_TO_RAD = M_PI / 180.0;
+const double RAD_TO_DEG = 180.0 / M_PI;
+
+struct GPSPosition {
+    double latitude;  // in degrees
+    double longitude; // in degrees
+    double altitude;  // in meters
+};
+
+GPSPosition calculateNewGPSPosition(const GPSPosition& currentPos, double dx, double dy, double dz) {
+    double lat_rad = currentPos.latitude * DEG_TO_RAD;
+    double new_latitude = currentPos.latitude + (dy / EARTH_RADIUS) * RAD_TO_DEG;
+    double new_longitude = currentPos.longitude + (dx / (EARTH_RADIUS * cos(lat_rad))) * RAD_TO_DEG;
+    double new_altitude = currentPos.altitude + dz;
+
+    return {new_latitude, new_longitude, new_altitude};
+}
+
+
 int main(int argc, char **argv) {
     ros::init(argc, argv, "mission_node");
     ros::NodeHandle nh;
@@ -75,12 +96,26 @@ int main(int argc, char **argv) {
 
     ros::Rate rate(20.0);
     // Define GPS waypoints
-    std::vector<std::pair<double, double>> waypoints = {
-        {47.3667, 8.55},      // Fake GPS position
-        {47.36665, 8.54995},  // Slightly ahead and to the left
-        {47.36675, 8.55005},  // Slightly behind and to the right
-        {47.36668, 8.54988},  // Further ahead and to the left
-        {47.36672, 8.55012}   // Further behind and to the right
+    // std::vector<std::pair<double, double>> waypoints = {
+    //     {47.3667, 8.55},      // Fake GPS position
+    //     {47.36665, 8.54995},  // Slightly ahead and to the left
+    //     {47.36675, 8.55005},  // Slightly behind and to the right
+    //     {47.36668, 8.54988},  // Further ahead and to the left
+    //     {47.36672, 8.55012}   // Further behind and to the right
+    // };
+    GPSPosition home_position;
+    home_position.latitude = 47.3667;
+    home_position.longitude = 8.55;
+    home_position.altitude = 537.8749159834465;
+    ROS_INFO_STREAM(current_gps.altitude);
+
+    std::vector<GPSPosition> waypoints = {
+        calculateNewGPSPosition(home_position, 0,0,5),
+        calculateNewGPSPosition(home_position, 1,2,5),
+        calculateNewGPSPosition(home_position, -2,2,5),
+        calculateNewGPSPosition(home_position, -2,4,3),
+        calculateNewGPSPosition(home_position, -2,0,2),
+        calculateNewGPSPosition(home_position, 0,0,4)
     };
 
     // Wait for FCU connection
@@ -92,7 +127,7 @@ int main(int argc, char **argv) {
         // send a few setpoints before starting
     for(int i = 100; ros::ok() && i > 0; --i){
         // local_pos_pub.publish(poseA);
-        navigateToWaypoint(global_pos_pub, current_gps.latitude, current_gps.longitude, 0.0);         ros::spinOnce();
+        navigateToWaypoint(global_pos_pub, current_gps.latitude, current_gps.longitude, current_gps.altitude);         ros::spinOnce();
         rate.sleep();
     }
 
@@ -109,17 +144,19 @@ int main(int argc, char **argv) {
 
     armDrone(arming_client);
     // Navigate to each waypoint
+
     for (const auto& waypoint : waypoints) {
-        navigateToWaypoint(global_pos_pub, waypoint.first, waypoint.second, 10.0); // Assuming altitude is 10 meters
+        navigateToWaypoint(global_pos_pub, waypoint.latitude, waypoint.longitude, waypoint.altitude); // Assuming altitude is 10 meters
     //     navigateToWaypoint(local_pos_pub, waypoint.first, waypoint.second, 10.0); // Assuming altitude is 10 meters
-        ROS_INFO_STREAM("Navigating to waypoint: " << waypoint.first << ", " << waypoint.second);
+        ROS_INFO_STREAM("Navigating to waypoint: " << waypoint.latitude << ", " << waypoint.longitude << ", " <<waypoint.altitude);
 
         // Wait for waypoint reached
         while (ros::ok() && !is_mission_complete) {
+            
             ros::spinOnce();
             rate.sleep();
         }
-
+        ROS_INFO("reached waypoint");
         // Take picture at waypoint
         takePicture(take_picture_pub);
         ROS_INFO("Taking picture");
@@ -128,7 +165,7 @@ int main(int argc, char **argv) {
 
     // Return to home
     // navigateToWaypoint(local_pos_pub, current_gps.latitude, current_gps.longitude, 0.0); // Land at current GPS position
-    navigateToWaypoint(global_pos_pub, current_gps.latitude, current_gps.longitude, 0.0); // Land at current GPS position
+    navigateToWaypoint(global_pos_pub, current_gps.latitude, current_gps.longitude, current_gps.altitude-10.0); // Land at current GPS position
 
     ROS_INFO("Returning to home");
 

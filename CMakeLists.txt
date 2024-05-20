@@ -5,8 +5,6 @@ project(quad_agent)
 # add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packagess
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
@@ -139,6 +137,7 @@ include_directories(
 
 # add_executable(hover_node src/hover.cpp )
 add_executable(mission_node src/mission.cpp)
+add_executable(missionchecker_node src/mission_complete.cpp)
 
 
 ## Declare a C++ library
@@ -169,6 +168,10 @@ add_executable(mission_node src/mission.cpp)
 
  target_link_libraries(
   mission_node
+  ${catkin_LIBRARIES}
+ )
+ target_link_libraries(
+  missionchecker_node
   ${catkin_LIBRARIES}
  )
 
