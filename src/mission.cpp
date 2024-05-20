@@ -40,16 +40,6 @@ void setMode(ros::ServiceClient& set_mode_client, const std::string& mode) {
     }
 }
 
-// // Function to navigate to a GPS waypoint
-// void navigateToWaypoint(ros::Publisher& local_pos_pub, double latitude, double longitude, double altitude) {
-//     geometry_msgs::PoseStamped waypoint;
-//     waypoint.header.stamp = ros::Time::now();
-//     waypoint.header.frame_id = "map"; // Frame should be "map" for GPS waypoints
-//     waypoint.pose.position.x = latitude;
-//     waypoint.pose.position.y = longitude;
-//     waypoint.pose.position.z = altitude;
-//     local_pos_pub.publish(waypoint);
-// }
 // Function to navigate to a GPS waypoint
 void navigateToWaypoint(ros::Publisher& global_pos_pub, double latitude, double longitude, double altitude) {
     geographic_msgs::GeoPoseStamped waypoint; // Change message type to geographic_msgs::GeoPoseStamped
