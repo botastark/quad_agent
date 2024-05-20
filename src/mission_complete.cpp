@@ -1,8 +1,10 @@
 #include "mission.h"
+<std_msgs/Bool.h>
 // Global variables
 mavros_msgs::State current_state;
 sensor_msgs::NavSatFix current_gps;
-bool is_mission_complete = false;
+std_msgs::Bool is_mission_complete;
+
 geometry_msgs::Vector3 current_target_global;
 double tolerance = 0.001;
 
@@ -23,18 +25,17 @@ void targetCallback(const geographic_msgs::GeoPoseStamped::ConstPtr& msg) {
 }
 
 
-bool missionComplete() {
+std_msgs::bool missionComplete() {
     double dx = current_target_global.x - current_gps.latitude;
     double dy = current_target_global.y - current_gps.longitude;
     double dz = current_target_global.z - current_gps.altitude;
     double dist = sqrt(dx * dx + dy * dy + dz * dz);
     if (dist > tolerance){
-        return false;
-        //mission_complete_pub.publish(false);
+	is_mission_complete.data=false;
     }else{
-        return true;
-        //mission_complete_pub.publish(true);
+	is_mission_complete.data=true;
     }
+    return is_mission_complete;
 
 }
 
