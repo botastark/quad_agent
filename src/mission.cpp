@@ -1,4 +1,10 @@
 #include "mission.h"
+//Need to WGS84->amsl of gps altitude 
+//"When controlling the FCU using global setpoints, you specify the altitude as meters above mean sea level (AMSL). But when sensing the global position, the altitude reported by ~global_position/global is specified as meters above the WGS-84 ellipsoid. This can lead to differences in altitude that are dozens of meters apart."
+//https://wiki.ros.org/mavros#mavros.2FPlugins.Avoiding_Pitfalls_Related_to_Ellipsoid_Height_and_Height_Above_Mean_Sea_Level
+
+
+
 GeographicLib::Geoid _egm96("egm96-5");  // WARNING: not thread safe
 bool reached_target = false;
 bool current_gps_received = false;
