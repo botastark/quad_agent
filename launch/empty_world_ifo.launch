@@ -28,7 +28,7 @@
         <arg name="interactive" value="true"/>
         <!-- <arg name="realsense_camera" value="true"/> -->
         <!-- <arg name="bottom_camera" value="false"/> -->
-        <arg name="camera" value="false"/>
+        <!-- <arg name="camera" value="false"/> -->
         <arg name="lidar" value="false"/>
 
         <arg name="emulate_mocap" value="$(arg emulate_mocap)"/>

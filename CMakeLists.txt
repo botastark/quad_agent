@@ -13,12 +13,13 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   mavros_msgs
 )
-
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};/usr/share/cmake/geographiclib")
+find_package(GeographicLib REQUIRED)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
-
-## Uncomment this if the package has a setup.py. This macro ensures
+#find_package(GeographicLib REQUIRED)
+#//# Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
 # catkin_python_setup()
@@ -174,6 +175,14 @@ add_executable(missionchecker_node src/mission_complete.cpp)
   missionchecker_node
   ${catkin_LIBRARIES}
  )
+
+
+target_include_directories(mission_node PRIVATE ${GeographicLib_INCLUDE_DIRS})
+target_compile_definitions(mission_node PRIVATE ${GeographicLib_DEFINITIONS})
+target_link_libraries     (mission_node         ${GeographicLib_LIBRARIES})
+target_include_directories(missionchecker_node PRIVATE ${GeographicLib_INCLUDE_DIRS})
+target_compile_definitions(missionchecker_node PRIVATE ${GeographicLib_DEFINITIONS})
+target_link_libraries     (missionchecker_node         ${GeographicLib_LIBRARIES})
 
 #############
 ## Install ##
