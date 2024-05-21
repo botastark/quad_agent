@@ -5,7 +5,7 @@ std_msgs::Bool reached_target;
 geometry_msgs::Vector3 current_target_global;
 
 
-double tolerance = 0.05;
+double tolerance = 0.2;
 bool current_gps_received = false;
 
 double calc_geoid_height(double lat, double lon) {
@@ -88,6 +88,7 @@ std_msgs::Bool missionComplete() {
     // double dy = current_target_global.y - current_gps.pose.position.longitude;
     // double dz = current_target_global.z - current_gps.pose.position.altitude;
     // double dist = sqrt(dx * dx + dy * dy + dz * dz);
+    ROS_INFO_STREAM("curr gps: "<<current_gps.pose.position.altitude <<" target h: "<<current_target_global.z );
     double vert_dist = haversine(current_target_global.x, current_target_global.y , current_gps.pose.position.latitude, current_gps.pose.position.longitude);
     double hori_dist = current_gps.pose.position.altitude - current_target_global.z ;
     double dist = sqrt(vert_dist * vert_dist + hori_dist * hori_dist);
@@ -120,27 +121,33 @@ int main(int argc, char **argv) {
     //     ros::spinOnce();
     //     rate.sleep();
     // }
-    // while(ros::ok()){
-    //     reached_target_pub.publish(missionComplete());
-    //     ros::spinOnce();
-    //     rate.sleep();
-    // }
-    geographic_msgs::GeoPoseStamped pointA;
-    geographic_msgs::GeoPoseStamped pointB;
+    while(ros::ok()){
+        reached_target_pub.publish(missionComplete());
+        ros::spinOnce();
+        rate.sleep();
+    }
+    // geographic_msgs::GeoPoseStamped pointA;
+    // geographic_msgs::GeoPoseStamped pointB;
+// [ INFO] [1716278666.215440676, 82.771000000]: home 47.3977, 8.54552, 488.375
+// [ INFO] [1716278666.215453741, 82.771000000]: waypoint: 47.3977, 8.54552, 490.875
+// [ INFO] [1716278666.215464602, 82.771000000]: waypoint: 47.3977, 8.54553, 490.875
+// [ INFO] [1716278666.215475773, 82.771000000]: waypoint: 47.3977, 8.54549, 490.875
+// [ INFO] [1716278666.215491693, 82.771000000]: waypoint: 47.3977, 8.54549, 491.375
+// [ INFO] [1716278666.215506542, 82.771000000]: waypoint: 47.3977, 8.54549, 490.375
+// [ INFO] [1716278666.215530477, 82.771000000]: waypoint: 47.3977, 8.54552, 492.375
+    // // Example coordinates with high precision
+    // pointA.pose.position.latitude = 40.748817; // Example: Point near PointA
+    // pointA.pose.position.longitude = -73.985428;
+    // pointB.pose.position.latitude = 40.748817; // Example: Point exactly the same as PointA
+    // pointB.pose.position.longitude = -73.985428;
 
-    // Example coordinates with high precision
-    pointA.pose.position.latitude = 40.748817; // Example: Point near PointA
-    pointA.pose.position.longitude = -73.985428;
-    pointB.pose.position.latitude = 40.748817; // Example: Point exactly the same as PointA
-    pointB.pose.position.longitude = -73.985428;
+    // // Print the coordinates being used
+    // std::cout << std::fixed << std::setprecision(15);
+    // std::cout << "Point A: (" << pointA.pose.position.latitude << ", " << pointA.pose.position.longitude << ")\n";
+    // std::cout << "Point B: (" << pointB.pose.position.latitude << ", " << pointB.pose.position.longitude << ")\n";
 
-    // Print the coordinates being used
-    std::cout << std::fixed << std::setprecision(15);
-    std::cout << "Point A: (" << pointA.pose.position.latitude << ", " << pointA.pose.position.longitude << ")\n";
-    std::cout << "Point B: (" << pointB.pose.position.latitude << ", " << pointB.pose.position.longitude << ")\n";
-
-    double distance = calculateDistance(pointA, pointB);
-    ROS_INFO("Distance between points: %.15f meters", distance);
+    // double distance = calculateDistance(pointA, pointB);
+    // ROS_INFO("Distance between points: %.15f meters", distance);
 
 
     return 0;

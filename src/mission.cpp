@@ -132,14 +132,17 @@ int main(int argc, char **argv) {
     home_position = navigateToWaypoint(current_gps.pose.position.latitude, current_gps.pose.position.longitude, current_gps.pose.position.altitude );
 
     std::vector<GPSPosition> waypoints = {
-        calculateNewGPSPosition(home_position, 0,0,2.5),
-        calculateNewGPSPosition(home_position, 1,2,2.5),
-        calculateNewGPSPosition(home_position, -2,2,2.5),
-        calculateNewGPSPosition(home_position, -2,4,3),
-        calculateNewGPSPosition(home_position, -2,0,2),
-        calculateNewGPSPosition(home_position, 0,0,4)
+        calculateNewGPSPosition(home_position, 0,   0,  2),
+        calculateNewGPSPosition(home_position, 4,   3,  2),
+        calculateNewGPSPosition(home_position, -2,  2,  2.5),
+        calculateNewGPSPosition(home_position, 4,  4,  2),
+        calculateNewGPSPosition(home_position, 10,  10,  2),
+        calculateNewGPSPosition(home_position, 0,   0,  1)
     };
-
+    ROS_INFO_STREAM("home "<< home_position.pose.position.latitude << ", " << home_position.pose.position.longitude << ", " <<home_position.pose.position.altitude);
+    for (const auto& waypoint : waypoints) {
+        ROS_INFO_STREAM("waypoint: " << waypoint.latitude << ", " << waypoint.longitude << ", " <<waypoint.altitude);
+    }
     double temp_home_alt = home_position.pose.position.altitude ;
 
     // send a few setpoints before starting
@@ -153,11 +156,11 @@ int main(int argc, char **argv) {
     // home_position.pose.position.altitude = temp_home_alt;
 
 
-    setMode(set_mode_client, "AUTO.TAKEOFF");
+    setMode(set_mode_client, "OFFBOARD");
     ROS_INFO("Drone taking off");
 
     // Wait for takeoff
-    while (ros::ok() && current_state.mode != "AUTO.TAKEOFF") {
+    while (ros::ok() && current_state.mode != "OFFBOARD") {
         ros::spinOnce();
         rate.sleep();
     }
@@ -181,7 +184,7 @@ int main(int argc, char **argv) {
         // Take picture at waypoint
         takePicture(take_picture_pub);
         ROS_INFO("Taking picture");
-        ros::Duration(1.0).sleep(); // Assuming picture takes 1 second
+        ros::Duration(5.0).sleep(); // Assuming picture takes 1 second
     }
 
     // Return to home
