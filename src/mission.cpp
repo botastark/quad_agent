@@ -1,13 +1,7 @@
 #include "mission.h"
-#include <mavros_msgs/Altitude.h>
-#include <GeographicLib/Geoid.hpp>
 GeographicLib::Geoid _egm96("egm96-5");  // WARNING: not thread safe
-geographic_msgs::GeoPoseStamped current_gps;
-// Global variables
-mavros_msgs::State current_state;
-bool is_mission_complete = false;
+bool reached_target = false;
 bool current_gps_received = false;
-// sensor_msgs::NavSatFix current_gps;
 
 double calc_geoid_height(double lat, double lon) {
     return _egm96(lat, lon);
@@ -19,10 +13,8 @@ double ellipsoid_height_to_amsl(double lat, double lon, double ellipsoid_height)
   return ellipsoid_height + GeographicLib::Geoid::ELLIPSOIDTOGEOID * calc_geoid_height(lat, lon);
 }
 
-// Callback functions
 
 void gpsCallback(const sensor_msgs::NavSatFix::ConstPtr& msg) {
-    //current_gps = *msg;
     current_gps_received = true;
     current_gps.pose.position.altitude = ellipsoid_height_to_amsl(msg->latitude, msg->longitude, msg->altitude);
     current_gps.header.stamp = msg->header.stamp;
@@ -35,13 +27,8 @@ void stateCallback(const mavros_msgs::State::ConstPtr& msg) {
     current_state = *msg;
 }
 
-
-double altitude;
-void get_altitude(const mavros_msgs::Altitude::ConstPtr &msg){
-    altitude = msg->amsl;
-}
-void missionCompleteCallback(const std_msgs::Bool::ConstPtr& msg) {    
-    is_mission_complete = msg->data;
+void reachedTargetCallback(const std_msgs::Bool::ConstPtr& msg) {    
+    reached_target = msg->data;
 }
 
 // Function to arm the drone
@@ -84,7 +71,7 @@ void takePicture(ros::Publisher& take_picture_pub) {
     take_picture_pub.publish(msg);
 }
 
-
+//Calculte waypoints local->global
 const double EARTH_RADIUS = 6378137.0; // in meters (WGS-84 Earth radius)
 const double DEG_TO_RAD = M_PI / 180.0;
 const double RAD_TO_DEG = 180.0 / M_PI;
@@ -111,18 +98,15 @@ int main(int argc, char **argv) {
 
     ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>("mavros/state", 10, stateCallback);
     ros::Subscriber gps_sub = nh.subscribe<sensor_msgs::NavSatFix>("mavros/global_position/global", 10, gpsCallback);
-    ros::Subscriber mission_complete_sub = nh.subscribe<std_msgs::Bool>("mission_complete", 10, missionCompleteCallback);
+    ros::Subscriber mission_complete_sub = nh.subscribe<std_msgs::Bool>("reached_target", 10,reachedTargetCallback);
     
     ros::Publisher global_pos_pub = nh.advertise<geographic_msgs::GeoPoseStamped>("mavros/setpoint_position/global", 10);
-    // ros::Publisher local_pos_pub = nh.advertise<geometry_msgs::PoseStamped>("mavros/setpoint_position/local", 10);
     ros::Publisher take_picture_pub = nh.advertise<std_msgs::Bool>("take_picture", 10);
 
     ros::ServiceClient arming_client = nh.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
     ros::ServiceClient set_mode_client = nh.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
-    // ros::Subscriber sub_altitude = nh.subscribe<mavros_msgs::Altitude>
-    //     ("mavros/altitude", 10, get_altitude);
     ros::Rate rate(20.0);
-    // Define GPS waypoints
+
     // std::vector<std::pair<double, double>> waypoints = {
     //     {47.3667, 8.55},      // Fake GPS position
     //     {47.36665, 8.54995},  // Slightly ahead and to the left
@@ -144,10 +128,8 @@ int main(int argc, char **argv) {
     }
     ROS_INFO("GPS position received");
 
-    // set target position
     geographic_msgs::GeoPoseStamped goal_position, home_position;
     home_position = navigateToWaypoint(current_gps.pose.position.latitude, current_gps.pose.position.longitude, current_gps.pose.position.altitude );
-    // ROS_INFO_STREAM("altitude of curr: "<<current_gps.pose.position.altitude<< " alt mavros: "<<altitude);
 
     std::vector<GPSPosition> waypoints = {
         calculateNewGPSPosition(home_position, 0,0,2.5),
@@ -179,28 +161,23 @@ int main(int argc, char **argv) {
         ros::spinOnce();
         rate.sleep();
     }
-
     armDrone(arming_client);
-    // Navigate to each waypoint
 
+
+    // Navigate to each waypoint
     for (const auto& waypoint : waypoints) {
-        
         ROS_INFO_STREAM("Navigating to waypoint: " << waypoint.latitude << ", " << waypoint.longitude << ", " <<waypoint.altitude);
 
         // Wait for waypoint reached
-        while (ros::ok() && !is_mission_complete) {
+        while (ros::ok() && !reached_target) {
             goal_position = navigateToWaypoint(waypoint.latitude, waypoint.longitude, waypoint.altitude);
             global_pos_pub.publish(goal_position);
 
-            ROS_INFO_THROTTLE(2, "\n"
-                "altitude\t: %.2f\n"
-                "target_alt\t: %.2f",
-                altitude, goal_position.pose.position.altitude
-            );
             ros::spinOnce();
             rate.sleep();
         }
         ROS_INFO("reached waypoint");
+
         // Take picture at waypoint
         takePicture(take_picture_pub);
         ROS_INFO("Taking picture");
@@ -208,7 +185,7 @@ int main(int argc, char **argv) {
     }
 
     // Return to home
-    while (ros::ok() && !is_mission_complete) {
+    while (ros::ok() && !reached_target) {
         home_position.header.stamp = ros::Time::now();
         global_pos_pub.publish(home_position);
         ROS_INFO("Returning to home");

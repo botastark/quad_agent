@@ -9,3 +9,7 @@
 #include <iostream>
 #include <geographic_msgs/GeoPoseStamped.h>
 #include <cmath>
+#include <GeographicLib/Geoid.hpp>
+
+geographic_msgs::GeoPoseStamped current_gps;
+mavros_msgs::State current_state;
