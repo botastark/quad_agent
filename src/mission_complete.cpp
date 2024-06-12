@@ -1,5 +1,6 @@
 #include "mission.h"
 
+
 GeographicLib::Geoid _egm96("egm96-5");  // WARNING: not thread safe
 std_msgs::Bool reached_target;
 geometry_msgs::Vector3 current_target_global;
@@ -42,8 +43,6 @@ void targetCallback(const geographic_msgs::GeoPoseStamped::ConstPtr& msg) {
     current_target_global.y = waypoint.pose.position.longitude; // Update longitude
     current_target_global.z = waypoint.pose.position.altitude; // Update altitude
 }
-
-
 
 
 double haversine(double lat1, double lon1, double lat2, double lon2) {

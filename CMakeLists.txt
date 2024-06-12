@@ -180,6 +180,7 @@ add_executable(missionchecker_node src/mission_complete.cpp)
 target_include_directories(mission_node PRIVATE ${GeographicLib_INCLUDE_DIRS})
 target_compile_definitions(mission_node PRIVATE ${GeographicLib_DEFINITIONS})
 target_link_libraries     (mission_node         ${GeographicLib_LIBRARIES})
+
 target_include_directories(missionchecker_node PRIVATE ${GeographicLib_INCLUDE_DIRS})
 target_compile_definitions(missionchecker_node PRIVATE ${GeographicLib_DEFINITIONS})
 target_link_libraries     (missionchecker_node         ${GeographicLib_LIBRARIES})
