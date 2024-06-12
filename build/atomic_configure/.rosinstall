@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/bota/catkin_ws_rm/src/quad_agent/build/devel/setup.sh
