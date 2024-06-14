@@ -54,7 +54,7 @@ build list_install_components: phony
 #############################################
 # Order-only phony target for mission_node
 
-build cmake_object_order_depends_target_mission_node: phony || CMakeFiles/mission_node.dir
+build cmake_object_order_depends_target_mission_node: phony || cmake_object_order_depends_target_util
 
 build CMakeFiles/mission_node.dir/src/mission.cpp.o: CXX_COMPILER__mission_node ../src/mission.cpp || cmake_object_order_depends_target_mission_node
   DEFINES = -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\"quad_agent\"
@@ -72,10 +72,10 @@ build CMakeFiles/mission_node.dir/src/mission.cpp.o: CXX_COMPILER__mission_node 
 #############################################
 # Link the executable devel/lib/quad_agent/mission_node
 
-build devel/lib/quad_agent/mission_node: CXX_EXECUTABLE_LINKER__mission_node CMakeFiles/mission_node.dir/src/mission.cpp.o | /opt/ros/noetic/lib/libroscpp.so /usr/lib/x86_64-linux-gnu/libpthread.so /usr/lib/x86_64-linux-gnu/libboost_chrono.so.1.71.0 /usr/lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0 /opt/ros/noetic/lib/librosconsole.so /opt/ros/noetic/lib/librosconsole_log4cxx.so /opt/ros/noetic/lib/librosconsole_backend_interface.so /usr/lib/x86_64-linux-gnu/liblog4cxx.so /usr/lib/x86_64-linux-gnu/libboost_regex.so.1.71.0 /opt/ros/noetic/lib/libxmlrpcpp.so /opt/ros/noetic/lib/libroscpp_serialization.so /opt/ros/noetic/lib/librostime.so /usr/lib/x86_64-linux-gnu/libboost_date_time.so.1.71.0 /opt/ros/noetic/lib/libcpp_common.so /usr/lib/x86_64-linux-gnu/libboost_system.so.1.71.0 /usr/lib/x86_64-linux-gnu/libboost_thread.so.1.71.0 /usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4 /usr/lib/x86_64-linux-gnu/libGeographic.so
+build devel/lib/quad_agent/mission_node: CXX_EXECUTABLE_LINKER__mission_node CMakeFiles/mission_node.dir/src/mission.cpp.o | /opt/ros/noetic/lib/libroscpp.so /usr/lib/x86_64-linux-gnu/libpthread.so /usr/lib/x86_64-linux-gnu/libboost_chrono.so.1.71.0 /usr/lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0 /opt/ros/noetic/lib/librosconsole.so /opt/ros/noetic/lib/librosconsole_log4cxx.so /opt/ros/noetic/lib/librosconsole_backend_interface.so /usr/lib/x86_64-linux-gnu/liblog4cxx.so /usr/lib/x86_64-linux-gnu/libboost_regex.so.1.71.0 /opt/ros/noetic/lib/libxmlrpcpp.so /opt/ros/noetic/lib/libroscpp_serialization.so /opt/ros/noetic/lib/librostime.so /usr/lib/x86_64-linux-gnu/libboost_date_time.so.1.71.0 /opt/ros/noetic/lib/libcpp_common.so /usr/lib/x86_64-linux-gnu/libboost_system.so.1.71.0 /usr/lib/x86_64-linux-gnu/libboost_thread.so.1.71.0 /usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4 devel/lib/libutil.so /usr/lib/x86_64-linux-gnu/libGeographic.so || devel/lib/libutil.so
   FLAGS = -g
   LINK_FLAGS = -rdynamic
-  LINK_LIBRARIES = -Wl,-rpath,/opt/ros/noetic/lib  /opt/ros/noetic/lib/libroscpp.so  -lpthread  /usr/lib/x86_64-linux-gnu/libboost_chrono.so.1.71.0  /usr/lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0  /opt/ros/noetic/lib/librosconsole.so  /opt/ros/noetic/lib/librosconsole_log4cxx.so  /opt/ros/noetic/lib/librosconsole_backend_interface.so  -llog4cxx  /usr/lib/x86_64-linux-gnu/libboost_regex.so.1.71.0  /opt/ros/noetic/lib/libxmlrpcpp.so  /opt/ros/noetic/lib/libroscpp_serialization.so  /opt/ros/noetic/lib/librostime.so  /usr/lib/x86_64-linux-gnu/libboost_date_time.so.1.71.0  /opt/ros/noetic/lib/libcpp_common.so  /usr/lib/x86_64-linux-gnu/libboost_system.so.1.71.0  /usr/lib/x86_64-linux-gnu/libboost_thread.so.1.71.0  /usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4  -lGeographic
+  LINK_LIBRARIES = -Wl,-rpath,/opt/ros/noetic/lib:/home/bota/catkin_ws_rm/src/quad_agent/build/devel/lib  /opt/ros/noetic/lib/libroscpp.so  -lpthread  /usr/lib/x86_64-linux-gnu/libboost_chrono.so.1.71.0  /usr/lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0  /opt/ros/noetic/lib/librosconsole.so  /opt/ros/noetic/lib/librosconsole_log4cxx.so  /opt/ros/noetic/lib/librosconsole_backend_interface.so  -llog4cxx  /usr/lib/x86_64-linux-gnu/libboost_regex.so.1.71.0  /opt/ros/noetic/lib/libxmlrpcpp.so  /opt/ros/noetic/lib/libroscpp_serialization.so  /opt/ros/noetic/lib/librostime.so  /usr/lib/x86_64-linux-gnu/libboost_date_time.so.1.71.0  /opt/ros/noetic/lib/libcpp_common.so  /usr/lib/x86_64-linux-gnu/libboost_system.so.1.71.0  /usr/lib/x86_64-linux-gnu/libboost_thread.so.1.71.0  /usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4  devel/lib/libutil.so  -lGeographic
   OBJECT_DIR = CMakeFiles/mission_node.dir
   POST_BUILD = :
   PRE_LINK = :
@@ -154,7 +154,7 @@ build mavros_msgs_generate_messages_lisp: phony
 #############################################
 # Order-only phony target for missionchecker_node
 
-build cmake_object_order_depends_target_missionchecker_node: phony || CMakeFiles/missionchecker_node.dir
+build cmake_object_order_depends_target_missionchecker_node: phony || cmake_object_order_depends_target_util
 
 build CMakeFiles/missionchecker_node.dir/src/mission_complete.cpp.o: CXX_COMPILER__missionchecker_node ../src/mission_complete.cpp || cmake_object_order_depends_target_missionchecker_node
   DEFINES = -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\"quad_agent\"
@@ -172,10 +172,10 @@ build CMakeFiles/missionchecker_node.dir/src/mission_complete.cpp.o: CXX_COMPILE
 #############################################
 # Link the executable devel/lib/quad_agent/missionchecker_node
 
-build devel/lib/quad_agent/missionchecker_node: CXX_EXECUTABLE_LINKER__missionchecker_node CMakeFiles/missionchecker_node.dir/src/mission_complete.cpp.o | /opt/ros/noetic/lib/libroscpp.so /usr/lib/x86_64-linux-gnu/libpthread.so /usr/lib/x86_64-linux-gnu/libboost_chrono.so.1.71.0 /usr/lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0 /opt/ros/noetic/lib/librosconsole.so /opt/ros/noetic/lib/librosconsole_log4cxx.so /opt/ros/noetic/lib/librosconsole_backend_interface.so /usr/lib/x86_64-linux-gnu/liblog4cxx.so /usr/lib/x86_64-linux-gnu/libboost_regex.so.1.71.0 /opt/ros/noetic/lib/libxmlrpcpp.so /opt/ros/noetic/lib/libroscpp_serialization.so /opt/ros/noetic/lib/librostime.so /usr/lib/x86_64-linux-gnu/libboost_date_time.so.1.71.0 /opt/ros/noetic/lib/libcpp_common.so /usr/lib/x86_64-linux-gnu/libboost_system.so.1.71.0 /usr/lib/x86_64-linux-gnu/libboost_thread.so.1.71.0 /usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4 /usr/lib/x86_64-linux-gnu/libGeographic.so
+build devel/lib/quad_agent/missionchecker_node: CXX_EXECUTABLE_LINKER__missionchecker_node CMakeFiles/missionchecker_node.dir/src/mission_complete.cpp.o | /opt/ros/noetic/lib/libroscpp.so /usr/lib/x86_64-linux-gnu/libpthread.so /usr/lib/x86_64-linux-gnu/libboost_chrono.so.1.71.0 /usr/lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0 /opt/ros/noetic/lib/librosconsole.so /opt/ros/noetic/lib/librosconsole_log4cxx.so /opt/ros/noetic/lib/librosconsole_backend_interface.so /usr/lib/x86_64-linux-gnu/liblog4cxx.so /usr/lib/x86_64-linux-gnu/libboost_regex.so.1.71.0 /opt/ros/noetic/lib/libxmlrpcpp.so /opt/ros/noetic/lib/libroscpp_serialization.so /opt/ros/noetic/lib/librostime.so /usr/lib/x86_64-linux-gnu/libboost_date_time.so.1.71.0 /opt/ros/noetic/lib/libcpp_common.so /usr/lib/x86_64-linux-gnu/libboost_system.so.1.71.0 /usr/lib/x86_64-linux-gnu/libboost_thread.so.1.71.0 /usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4 devel/lib/libutil.so /usr/lib/x86_64-linux-gnu/libGeographic.so || devel/lib/libutil.so
   FLAGS = -g
   LINK_FLAGS = -rdynamic
-  LINK_LIBRARIES = -Wl,-rpath,/opt/ros/noetic/lib  /opt/ros/noetic/lib/libroscpp.so  -lpthread  /usr/lib/x86_64-linux-gnu/libboost_chrono.so.1.71.0  /usr/lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0  /opt/ros/noetic/lib/librosconsole.so  /opt/ros/noetic/lib/librosconsole_log4cxx.so  /opt/ros/noetic/lib/librosconsole_backend_interface.so  -llog4cxx  /usr/lib/x86_64-linux-gnu/libboost_regex.so.1.71.0  /opt/ros/noetic/lib/libxmlrpcpp.so  /opt/ros/noetic/lib/libroscpp_serialization.so  /opt/ros/noetic/lib/librostime.so  /usr/lib/x86_64-linux-gnu/libboost_date_time.so.1.71.0  /opt/ros/noetic/lib/libcpp_common.so  /usr/lib/x86_64-linux-gnu/libboost_system.so.1.71.0  /usr/lib/x86_64-linux-gnu/libboost_thread.so.1.71.0  /usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4  -lGeographic
+  LINK_LIBRARIES = -Wl,-rpath,/opt/ros/noetic/lib:/home/bota/catkin_ws_rm/src/quad_agent/build/devel/lib  /opt/ros/noetic/lib/libroscpp.so  -lpthread  /usr/lib/x86_64-linux-gnu/libboost_chrono.so.1.71.0  /usr/lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0  /opt/ros/noetic/lib/librosconsole.so  /opt/ros/noetic/lib/librosconsole_log4cxx.so  /opt/ros/noetic/lib/librosconsole_backend_interface.so  -llog4cxx  /usr/lib/x86_64-linux-gnu/libboost_regex.so.1.71.0  /opt/ros/noetic/lib/libxmlrpcpp.so  /opt/ros/noetic/lib/libroscpp_serialization.so  /opt/ros/noetic/lib/librostime.so  /usr/lib/x86_64-linux-gnu/libboost_date_time.so.1.71.0  /opt/ros/noetic/lib/libcpp_common.so  /usr/lib/x86_64-linux-gnu/libboost_system.so.1.71.0  /usr/lib/x86_64-linux-gnu/libboost_thread.so.1.71.0  /usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4  devel/lib/libutil.so  -lGeographic
   OBJECT_DIR = CMakeFiles/missionchecker_node.dir
   POST_BUILD = :
   PRE_LINK = :
@@ -403,6 +403,41 @@ build clean_test_results: phony CMakeFiles/clean_test_results
 # Utility command for tests
 
 build tests: phony
+
+# =============================================================================
+# Object build statements for SHARED_LIBRARY target util
+
+
+#############################################
+# Order-only phony target for util
+
+build cmake_object_order_depends_target_util: phony || CMakeFiles/util.dir
+
+build CMakeFiles/util.dir/src/util.cpp.o: CXX_COMPILER__util ../src/util.cpp || cmake_object_order_depends_target_util
+  DEFINES = -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\"quad_agent\" -Dutil_EXPORTS
+  DEP_FILE = CMakeFiles/util.dir/src/util.cpp.o.d
+  FLAGS = -g -fPIC
+  INCLUDES = -I../include -I/home/bota/catkin_ws_rm/devel/.private/mavros_msgs/include -I/home/bota/catkin_ws_rm/src/mavros/mavros_msgs/include -I/opt/ros/noetic/include -I/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp
+  OBJECT_DIR = CMakeFiles/util.dir
+  OBJECT_FILE_DIR = CMakeFiles/util.dir/src
+
+
+# =============================================================================
+# Link build statements for SHARED_LIBRARY target util
+
+
+#############################################
+# Link the shared library devel/lib/libutil.so
+
+build devel/lib/libutil.so: CXX_SHARED_LIBRARY_LINKER__util CMakeFiles/util.dir/src/util.cpp.o
+  LANGUAGE_COMPILE_FLAGS = -g
+  OBJECT_DIR = CMakeFiles/util.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  SONAME = libutil.so
+  SONAME_FLAG = -Wl,-soname,
+  TARGET_FILE = devel/lib/libutil.so
+  TARGET_PDB = util.so.dbg
 
 
 #############################################
@@ -862,9 +897,13 @@ build libgtest_maind.so: phony gtest/lib/libgtest_maind.so
 
 build libgtestd.so: phony gtest/lib/libgtestd.so
 
+build libutil.so: phony devel/lib/libutil.so
+
 build mission_node: phony devel/lib/quad_agent/mission_node
 
 build missionchecker_node: phony devel/lib/quad_agent/missionchecker_node
+
+build util: phony devel/lib/libutil.so
 
 # =============================================================================
 # Folder targets.
@@ -874,7 +913,7 @@ build missionchecker_node: phony devel/lib/quad_agent/missionchecker_node
 #############################################
 # Folder: /home/bota/catkin_ws_rm/src/quad_agent/build
 
-build all: phony devel/lib/quad_agent/mission_node devel/lib/quad_agent/missionchecker_node gtest/all
+build all: phony devel/lib/quad_agent/mission_node devel/lib/quad_agent/missionchecker_node devel/lib/libutil.so gtest/all
 
 # =============================================================================
 

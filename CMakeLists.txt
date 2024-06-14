@@ -139,6 +139,7 @@ include_directories(
 # add_executable(hover_node src/hover.cpp )
 add_executable(mission_node src/mission.cpp)
 add_executable(missionchecker_node src/mission_complete.cpp)
+add_library(util src/util.cpp)
 
 
 ## Declare a C++ library
@@ -170,10 +171,12 @@ add_executable(missionchecker_node src/mission_complete.cpp)
  target_link_libraries(
   mission_node
   ${catkin_LIBRARIES}
+  util
  )
  target_link_libraries(
   missionchecker_node
   ${catkin_LIBRARIES}
+  util
  )
 
 

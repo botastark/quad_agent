@@ -13,6 +13,12 @@
 
 {
   "directory": "/home/bota/catkin_ws_rm/src/quad_agent/build",
+  "command": "/usr/bin/c++  -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\\\"quad_agent\\\" -Dutil_EXPORTS -I../include -I/home/bota/catkin_ws_rm/devel/.private/mavros_msgs/include -I/home/bota/catkin_ws_rm/src/mavros/mavros_msgs/include -I/opt/ros/noetic/include -I/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp  -g -fPIC   -o CMakeFiles/util.dir/src/util.cpp.o -c /home/bota/catkin_ws_rm/src/quad_agent/src/util.cpp",
+  "file": "/home/bota/catkin_ws_rm/src/quad_agent/src/util.cpp"
+},
+
+{
+  "directory": "/home/bota/catkin_ws_rm/src/quad_agent/build",
   "command": "/usr/bin/c++  -DGTEST_CREATE_SHARED_LIBRARY=1 -Dgmock_main_EXPORTS -isystem /usr/src/googletest/googlemock/include -isystem /usr/src/googletest/googlemock -isystem /usr/src/googletest/googletest/include -isystem /usr/src/googletest/googletest  -g -fPIC   -Wall -Wshadow -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -DGTEST_HAS_PTHREAD=1 -std=c++11 -o gtest/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o -c /usr/src/googletest/googlemock/src/gmock_main.cc",
   "file": "/usr/src/googletest/googlemock/src/gmock_main.cc"
 },

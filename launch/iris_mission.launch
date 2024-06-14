@@ -1,21 +1,23 @@
 <launch>
 
-    <arg name="fcu_url" default="udp://:14540@127.0.0.1:14557"/>
-    <arg name="gcs_url" default=""/>
+    <arg name="fcu_url" default="udp://:14540@127.0.0.1:14557" />
+    <arg name="gcs_url" default="" />
 
-    <arg name="vehicle" default="iris"/>
-    <arg name="sdf" default="$(find px4)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/iris_fpv_cam/iris_fpv_cam.sdf"/>
+    <arg name="vehicle" default="iris" />
+    <arg name="sdf"
+        default="$(find px4)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/iris_fpv_cam/iris_fpv_cam.sdf" />
 
     <include file="$(find px4)/launch/mavros_posix_sitl.launch">
-        <arg name="respawn_gazebo" value="true"/>
-        <arg name="respawn_mavros" value="true"/>
-        <arg name="fcu_url" value="$(arg fcu_url)"/>
-        <arg name="gcs_url" value="$(arg gcs_url)"/>
-        <arg name="vehicle" value="$(arg vehicle)"/>
-        <arg name="sdf" value="$(arg sdf)"/>
-        <arg name="verbose" value="true"/>
+        <arg name="respawn_gazebo" value="true" />
+        <arg name="respawn_mavros" value="true" />
+        <arg name="fcu_url" value="$(arg fcu_url)" />
+        <arg name="gcs_url" value="$(arg gcs_url)" />
+        <arg name="vehicle" value="$(arg vehicle)" />
+        <arg name="sdf" value="$(arg sdf)" />
+        <arg name="verbose" value="true" />
     </include>
     <!-- Launch your mission node -->
-    <node name="mission_node" type="mission_node" pkg="quad_agent" output = "screen"/>
-    <!-- <node name="missionchecker_node" type="missionchecker_node" pkg="quad_agent" output = "screen"/> -->
+    <node name="mission_node" type="mission_node" pkg="quad_agent" output="screen" />
+    <!-- <node name="missionchecker_node" type="missionchecker_node" pkg="quad_agent" output =
+    "screen"/> -->
 </launch>
