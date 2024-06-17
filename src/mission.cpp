@@ -108,19 +108,19 @@ int main(int argc, char **argv) {
     std::string filename = "/home/bota/catkin_ws_rm/src/quad_agent/path/waypoints.txt";  // File containing waypoints
 
     std::vector<GPSPosition> waypoints = readWaypointsFromFile(filename, current_gps.pose.position.altitude);
-    if (waypoints.empty()) {
-        waypoints = {
-            {41.73724768996549, 12.513644919120955, 96},
-            {41.73722578686695, 12.513646971647058, 96},
-            {41.73720388376838, 12.513649024171759, 95},
-            {41.73718198066976, 12.51365107669506, 94},
-            {41.7371600775711, 12.513653129216962, 96},
-            {41.73713817447241, 12.513655181737462, 95},
-            {41.737116271373694, 12.513657234256565, 96},
-            {41.73709517590471, 12.513659211092103, 94},
-            {41.73707566207436, 12.513700304019201, 94},
-            {41.737097565173855, 12.513698251516086, 95}};
-    }
+    // if (waypoints.empty()) {
+    //     waypoints = {
+    //         {41.73724768996549, 12.513644919120955, 96},
+    //         {41.73722578686695, 12.513646971647058, 96},
+    //         {41.73720388376838, 12.513649024171759, 95},
+    //         {41.73718198066976, 12.51365107669506, 94},
+    //         {41.7371600775711, 12.513653129216962, 96},
+    //         {41.73713817447241, 12.513655181737462, 95},
+    //         {41.737116271373694, 12.513657234256565, 96},
+    //         {41.73709517590471, 12.513659211092103, 94},
+    //         {41.73707566207436, 12.513700304019201, 94},
+    //         {41.737097565173855, 12.513698251516086, 95}};
+    // }
 
     for (const auto &waypoint : waypoints) {
         ROS_INFO_STREAM("waypoint: " << waypoint.latitude << ", "
@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
     setMode(set_mode_client, "OFFBOARD");
     ROS_INFO("Drone taking off");
 
-    // Wait for takeoff
+    // Wait for offboard
     while (ros::ok() && current_state.mode != "OFFBOARD") {
         ros::spinOnce();
         rate.sleep();

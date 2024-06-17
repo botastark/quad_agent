@@ -3,11 +3,11 @@
   <model name='iris_fpv_cam'>
 
     <include>
-      <uri>model://iris</uri>
+      <uri>file://./iris</uri>
     </include>
 
     <include>
-      <uri>model://fpv_cam</uri>
+      <uri>file://./fpv_cam</uri>
       <pose>0 0 0 0 1.5708 0</pose>
     </include>
     <joint name="fpv_cam_joint" type="fixed">

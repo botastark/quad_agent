@@ -12,9 +12,11 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   geometry_msgs
   mavros_msgs
+  cv_bridge
 )
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};/usr/share/cmake/geographiclib")
 find_package(GeographicLib REQUIRED)
+find_package(OpenCV REQUIRED)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -122,9 +124,8 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
-
-
 
 
 ## Add cmake target dependencies of the library
@@ -140,7 +141,7 @@ include_directories(
 add_executable(mission_node src/mission.cpp)
 add_executable(missionchecker_node src/mission_complete.cpp)
 add_library(util src/util.cpp)
-
+add_executable(image_saver_node src/image_saver.cpp)
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -178,6 +179,7 @@ add_library(util src/util.cpp)
   ${catkin_LIBRARIES}
   util
  )
+target_link_libraries(image_saver_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
 
 target_include_directories(mission_node PRIVATE ${GeographicLib_INCLUDE_DIRS})
