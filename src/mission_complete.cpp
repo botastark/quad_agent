@@ -15,9 +15,9 @@ void gpsCallback(const sensor_msgs::NavSatFix::ConstPtr &msg) {
     current_gps.pose.position.longitude = msg->longitude;
 }
 
-void stateCallback(const mavros_msgs::State::ConstPtr &msg) {
-    current_state = *msg;
-}
+// void stateCallback(const mavros_msgs::State::ConstPtr &msg) {
+//     current_state = *msg;
+// }
 
 void targetCallback(const geographic_msgs::GeoPoseStamped::ConstPtr &msg) {
     geographic_msgs::GeoPoseStamped waypoint = *msg;
@@ -30,14 +30,6 @@ void targetCallback(const geographic_msgs::GeoPoseStamped::ConstPtr &msg) {
 }
 
 std_msgs::Bool missionComplete() {
-    // ROS_INFO_STREAM("curr gps h: " << current_gps.pose.position.altitude
-    //                                << " target h: " << current_target_global.z);
-    // ROS_INFO_STREAM("curr gps lat: " << current_gps.pose.position.latitude
-    //                                  << " target lat: "
-    //                                  << current_target_global.x);
-    // ROS_INFO_STREAM("curr gps lon: " << current_gps.pose.position.longitude
-    //                                  << " target lon: "
-    //                                  << current_target_global.y);
     double vert_dist =
         haversine(current_target_global.x, current_target_global.y,
                   current_gps.pose.position.latitude,
@@ -57,6 +49,7 @@ std_msgs::Bool missionComplete() {
 
     log_file << "dist: " << dist << " vert_dist: " << vert_dist
              << " hori_dist: " << hori_dist << std::endl;
+
     if (dist < tolerance && vert_dist < 0.11 && hori_dist < 0.2 && dist != 0) {
         reached_target.data = true;
         ROS_INFO("Reached waypoint!");
@@ -74,8 +67,8 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "missionchecker_node");
     ros::NodeHandle nh_;
 
-    ros::Subscriber state_sub =
-        nh_.subscribe<mavros_msgs::State>("mavros/state", 10, stateCallback);
+    // ros::Subscriber state_sub =
+    //     nh_.subscribe<mavros_msgs::State>("mavros/state", 10, stateCallback);
     ros::Subscriber gps_sub = nh_.subscribe<sensor_msgs::NavSatFix>(
         "mavros/global_position/global", 10, gpsCallback);
     ros::Publisher reached_target_pub =
@@ -93,6 +86,10 @@ int main(int argc, char **argv) {
         ROS_ERROR("Failed to open log file.");
         return 1;
     }
+    // while (ros::ok() && !current_state.armed) {
+    //     ros::spinOnce();
+    //     rate.sleep();
+    // }
 
     while (ros::ok()) {
         reached_target_pub.publish(missionComplete());

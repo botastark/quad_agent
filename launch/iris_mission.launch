@@ -2,10 +2,12 @@
 
     <arg name="fcu_url" default="udp://:14540@127.0.0.1:14557" />
     <arg name="gcs_url" default="" />
-
     <arg name="vehicle" default="iris" />
+    <!-- default="$(find
+    px4)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/iris_fpv_cam/iris_fpv_cam.sdf"
+    /> -->
     <arg name="sdf"
-        default="$(find px4)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/iris_fpv_cam/iris_fpv_cam.sdf" />
+        default="$(find quad_agent)/models/iris_fpv_cam.sdf" />
 
     <include file="$(find px4)/launch/mavros_posix_sitl.launch">
         <arg name="respawn_gazebo" value="true" />
@@ -18,6 +20,7 @@
     </include>
     <!-- Launch your mission node -->
     <node name="mission_node" type="mission_node" pkg="quad_agent" output="screen" />
+    <node name="image_saver_node" type="image_saver_node" pkg="quad_agent" output="screen" />
     <!-- <node name="missionchecker_node" type="missionchecker_node" pkg="quad_agent" output =
     "screen"/> -->
 </launch>

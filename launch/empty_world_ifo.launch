@@ -1,42 +1,40 @@
 <?xml version="1.0"?>
 <launch>
 
-<!-- gazebo configs -->
-    <arg name="gui" default="true"/>
-    <arg name="debug" default="false"/>
-    <arg name="verbose" default="false"/>
-    <arg name="paused" default="false"/>
-    <arg name="emulate_mocap" default="true"/>
+    <!-- gazebo configs -->
+    <arg name="gui" default="true" />
+    <arg name="debug" default="false" />
+    <arg name="verbose" default="false" />
+    <arg name="paused" default="false" />
+    <arg name="emulate_mocap" default="true" />
 
     <!-- =================================================================== -->
     <!-- Start Gazebo -->
     <include file="$(find ifo_gazebo)/launch/empty_world.launch">
-        <arg name="gui" value="$(arg gui)"/>
-        <arg name="debug" value="$(arg debug)"/>
-        <arg name="verbose" value="$(arg verbose)"/>
-        <arg name="paused" value="$(arg paused)"/>
-        
-        <!--<arg name="world_name" value="$(find quad_agent)/worlds/empty_world.world"/>-->
+        <arg name="gui" value="$(arg gui)" />
+        <arg name="debug" value="$(arg debug)" />
+        <arg name="verbose" value="$(arg verbose)" />
+        <arg name="paused" value="$(arg paused)" />
+
+        <!--<arg
+        name="world_name" value="$(find quad_agent)/worlds/empty_world.world"/>-->
     </include>
-    
-    
+
     <!-- ================================================================== -->
     <!-- Spawn vehicle -->
     <param name="robot_id" type="str" value="ifo001" />
     <include file="$(find ifo_gazebo)/launch/ifo_spawn_single.launch">
-        <arg name="namespace" value="agent"/> 
-        <arg name="interactive" value="true"/>
+        <arg name="namespace" value="agent" />
+        <arg name="interactive" value="true" />
         <!-- <arg name="realsense_camera" value="true"/> -->
         <!-- <arg name="bottom_camera" value="false"/> -->
         <!-- <arg name="camera" value="false"/> -->
-        <arg name="lidar" value="false"/>
+        <arg name="lidar" value="false" />
 
-        <arg name="emulate_mocap" value="$(arg emulate_mocap)"/>
+        <arg name="emulate_mocap" value="$(arg emulate_mocap)" />
     </include>
-
-  <!-- <node name="hover_node" type="hover_node" pkg="quad_agent" output = "screen"/> -->
-  <node name="mission_node" type="mission_node" pkg="quad_agent" output = "screen"/>
-
+    <!-- <node name="hover_node" type="hover_node" pkg="quad_agent" output = "screen"/> -->
+    <node name="mission_node" type="mission_node" pkg="quad_agent" output="screen" />
 
 
 </launch>

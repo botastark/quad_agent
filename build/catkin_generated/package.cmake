@@ -1,6 +1,6 @@
 set(_CATKIN_CURRENT_PACKAGE "quad_agent")
 set(quad_agent_VERSION "0.0.0")
-set(quad_agent_MAINTAINER "botaduisenbay <botaduisenbay@todo.todo>")
+set(quad_agent_MAINTAINER "botaduisenbay <bota.duisenbay@gmail.com>")
 set(quad_agent_PACKAGE_FORMAT "2")
 set(quad_agent_BUILD_DEPENDS "roscpp" "rospy" "std_msgs")
 set(quad_agent_BUILD_EXPORT_DEPENDS "roscpp" "rospy" "std_msgs")

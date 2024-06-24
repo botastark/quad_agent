@@ -7,7 +7,7 @@
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="botaduisenbay@todo.todo">botaduisenbay</maintainer>
+  <maintainer email="bota.duisenbay@gmail.com">botaduisenbay</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
@@ -62,7 +62,27 @@
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
-    <!-- Other tools can request additional information be placed here -->
-
+    <environment>
+      <name>PX4_HOME_LAT</name>
+      <value>41.737333879364094</value>
+    </environment>
+    <environment>
+      <name>PX4_HOME_LON</name>
+      <value>12.51367080978099</value>
+    </environment>
+    <environment>
+      <name>PX4_HOME_ALT</name>
+      <value>92</value>
+    </environment>
+    <environment>
+      <name>PX4_BATTERY_CELLS</name>
+      <value>4</value>
+    </environment>
+    <environment>
+      <name>COM_OF_LOSS_T</name>
+      <value>5</value>
+    </environment>
+    <gazebo_ros gazebo_model_path="${prefix}/models" />
+    <gazebo_ros gazebo_media_path="${prefix}/models" />
   </export>
 </package>

@@ -1,13 +1,12 @@
 <?xml version='1.0'?>
 <sdf version='1.5'>
   <model name='iris_fpv_cam'>
-
     <include>
-      <uri>file://./iris</uri>
+      <uri>model://iris</uri>
     </include>
 
     <include>
-      <uri>file://./fpv_cam</uri>
+      <uri>model://fpv_cam</uri>
       <pose>0 0 0 0 1.5708 0</pose>
     </include>
     <joint name="fpv_cam_joint" type="fixed">
@@ -22,5 +21,49 @@
       </axis>
     </joint>
 
+    <include>
+      <uri>model://lidar</uri>
+      <pose>0 0 -0.05 0 0 0</pose>
+      <name>lidar0</name>
+    </include>
+    <joint name="lidar0_joint" type="fixed">
+      <parent>iris::base_link</parent>
+      <child>lidar0::link</child>
+    </joint>
+
+
+    <!-- Add the distance sensor -->
+    <!--<sensor
+    name="distance_sensor" type="ray">
+      <pose>0 0 0 0 0 0</pose> 
+      <visualize>true</visualize>
+      <update_rate>10</update_rate>
+      <ray>
+      <scan>
+        <horizontal>
+          <samples>1</samples>
+          <resolution>1</resolution>
+          <min_angle>0</min_angle>
+          <max_angle>0</max_angle>
+        </horizontal>
+      </scan>
+      <range>
+        <min>0.2</min>
+        <max>50.0</max>
+        <resolution>0.01</resolution>
+      </range>
+      <noise>
+        <type>gaussian</type>
+        <mean>0.0</mean>
+        <stddev>0.01</stddev>
+      </noise>
+    </ray>
+      <plugin name="distance_sensor_plugin"
+      filename="libgazebo_ros_ray_sensor.so">
+      <robotNamespace>/iris</robotNamespace>
+      <topicName>distance_sensor</topicName>
+      <frameName>iris/base_link</frameName>
+    </plugin>
+    </sensor> -->
   </model>
 </sdf>

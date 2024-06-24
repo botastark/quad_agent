@@ -38,7 +38,7 @@ double haversine(double lat1, double lon1, double lat2, double lon2) {
 }
 
 // Function to read waypoints from a file and add current GPS altitude
-std::vector<GPSPosition> readWaypointsFromFile(const std::string& filename, double currentGpsAltitude) {
+std::vector<GPSPosition> readWaypointsFromFile(const std::string &filename, double currentGpsAltitude) {
     std::vector<GPSPosition> waypoints;
     std::ifstream infile(filename);
 
@@ -60,7 +60,7 @@ std::vector<GPSPosition> readWaypointsFromFile(const std::string& filename, doub
         ss >> lat >> lon >> alt;
 
         // Add current GPS altitude to the read altitude
-        alt += currentGpsAltitude;
+        // alt += currentGpsAltitude;
 
         // Add the waypoint to the vector
         waypoints.push_back({lat, lon, alt});
@@ -68,4 +68,39 @@ std::vector<GPSPosition> readWaypointsFromFile(const std::string& filename, doub
 
     infile.close();
     return waypoints;
+}
+
+// Function to create geo msgs for a GPS waypoint
+geographic_msgs::GeoPoseStamped create_pose(double latitude,
+                                            double longitude,
+                                            double altitude) {
+    geographic_msgs::GeoPoseStamped waypoint;
+    waypoint.header.stamp = ros::Time::now();
+    waypoint.header.frame_id =
+        "map";  // Frame should be "map" for GPS waypoints
+    waypoint.pose.position.latitude = latitude;
+    waypoint.pose.position.longitude = longitude;
+    waypoint.pose.position.altitude = altitude;
+    return waypoint;
+}
+
+void armDrone(ros::ServiceClient &arming_client) {
+    mavros_msgs::CommandBool arm_cmd;
+    arm_cmd.request.value = true;
+    if (arming_client.call(arm_cmd) && arm_cmd.response.success) {
+        ROS_INFO("Drone armed");
+    } else {
+        ROS_ERROR("Failed to arm the drone");
+    }
+}
+
+void setMode(ros::ServiceClient &set_mode_client, const std::string &mode) {
+    mavros_msgs::SetMode offb_set_mode;
+    offb_set_mode.request.custom_mode = mode;
+    if (set_mode_client.call(offb_set_mode) &&
+        offb_set_mode.response.mode_sent) {
+        ROS_INFO_STREAM("Mode set to: " << mode);
+    } else {
+        ROS_ERROR_STREAM("Failed to set mode: " << mode);
+    }
 }
