@@ -172,29 +172,41 @@ int main(int argc, char **argv) {
         while (ros::ok() && !reached_target) {
             home_position.header.stamp = ros::Time::now();
             global_pos_pub.publish(home_position);
-            ROS_INFO("Returning to home");
+            ROS_INFO_ONCE("Returning to home");
             logger.logMessage("Returning to home");
             ros::spinOnce();
             rate.sleep();
         }
 
         // Wait for landing
+
         setMode(set_mode_client, "AUTO.LAND");
-        ROS_INFO("Drone landing");
-        logger.logMessage("Drone landing");
+
+        ROS_INFO("Drone start landing");
+        logger.logMessage("Drone start landing");
+
         ros::Time land_start = ros::Time::now();
         while (ros::ok() && current_state.mode != "AUTO.LAND") {
+            setMode(set_mode_client, "AUTO.LAND");
+            ROS_INFO_ONCE("Drone setting to land");
+            logger.logMessage("Drone keep setting to land");
             ros::spinOnce();
             rate.sleep();
         }
+        home_position.pose.position.altitude = temp_home_alt;
         // Wait for 15 seconds after landing (regardless of landing confirmation)
-        while (ros::ok() && (ros::Time::now() - land_start).toSec() < 15.0) {
+        while (ros::ok() && !reached_target) {
+            goal_position.header.stamp = ros::Time::now();
+            global_pos_pub.publish(home_position);
+            ROS_INFO_ONCE("Drone landing");
+            logger.logMessage("Drone keep setting to land");
             ros::spinOnce();
             rate.sleep();
         }
-
-        ROS_INFO("Drone has landed");
-        logger.logMessage("Drone has landed");
+        if (reached_target) {
+            ROS_INFO("Drone has landed");
+            logger.logMessage("Drone has landed");
+        }
 
         ROS_INFO("Mission complete");
         logger.logMessage("Mission complete");

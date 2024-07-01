@@ -188,7 +188,6 @@ class Logger {
 
 std::string getCurrentDateTime() {
     auto now = std::chrono::system_clock::now();
-    // auto ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
 
     std::time_t now_c = std::chrono::system_clock::to_time_t(now);
     std::tm now_tm = *std::localtime(&now_c);
