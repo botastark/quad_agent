@@ -16,9 +16,25 @@ class ImageSaver {
         image_sub_ = nh_.subscribe("/iris/usb_cam/image_raw", 1, &ImageSaver::imageCallback, this);
         take_picture_sub_ = nh_.subscribe("/take_picture", 1, &ImageSaver::takePictureCallback, this);
         // Create survey folder if it doesn't exist
+
         survey_folder_ = "/home/bota/catkin_ws_rm/src/quad_agent/survey";  // Update with your actual path
         if (!createDirectory(survey_folder_.c_str())) {
             ROS_ERROR("Failed to create or access survey folder: %s", survey_folder_.c_str());
+        } else {
+            // Create date folder for current date (YYYY-MM-DD)
+            std::time_t rawtime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+            struct std::tm* timeinfo = std::localtime(&rawtime);
+
+            char buffer[80];
+            strftime(buffer, sizeof(buffer), "%Y-%m-%d", timeinfo);
+
+            survey_folder_ = survey_folder_ + "/" + buffer;
+            createDirectory(survey_folder_.c_str());
+            std::stringstream time_subfolder;
+            time_subfolder << std::put_time(timeinfo, "%H-%M");
+
+            survey_folder_ = survey_folder_ + "/" + time_subfolder.str();
+            createDirectory(survey_folder_.c_str());
         }
     }
 
@@ -40,22 +56,32 @@ class ImageSaver {
                 // Generate folder path with current date as name
                 std::time_t rawtime = std::chrono::system_clock::to_time_t(now);
                 struct std::tm* timeinfo = std::localtime(&rawtime);
-                char buffer[80];
-                strftime(buffer, sizeof(buffer), "%Y-%m-%d", timeinfo);
-                std::string date_folder = buffer;
-                std::string date_folder_path = survey_folder_ + "/" + date_folder;
+                // char buffer[80];
+                // strftime(buffer, sizeof(buffer), "%Y-%m-%d", timeinfo);
+
+                // std::string date_folder_path = survey_folder_ + "/" + buffer;
 
                 // Create directory if it does not exist
-                if (access(date_folder_path.c_str(), F_OK) == -1) {
-                    mkdir(date_folder_path.c_str(), 0777);
-                }
+                // if (access(date_folder_path.c_str(), F_OK) == -1) {
+                //     mkdir(date_folder_path.c_str(), 0777);
+                // }
+
+                // std::stringstream time_subfolder;
+                // time_subfolder << std::put_time(timeinfo, "%H-%M-%S");
+                // std::string date_folder = time_subfolder.str();
+
+                // date_folder_path = date_folder_path + "/" + date_folder;
+                // if (access(date_folder_path.c_str(), F_OK) == -1) {
+                //     mkdir(date_folder_path.c_str(), 0777);
+                // }
 
                 // Generate filename with precise current time (hours, minutes, seconds, milliseconds)
                 std::stringstream time_filename;
+
                 time_filename << std::put_time(timeinfo, "%H-%M-%S")
                               << '-' << std::setfill('0') << std::setw(3) << fractional_seconds.count() << ".png";
 
-                std::string image_path = date_folder_path + "/" + time_filename.str();
+                std::string image_path = survey_folder_ + "/" + time_filename.str();
 
                 // Save image
                 cv::imwrite(image_path, image);

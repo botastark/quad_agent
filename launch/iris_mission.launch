@@ -21,6 +21,5 @@
     <!-- Launch your mission node -->
     <node name="mission_node" type="mission_node" pkg="quad_agent" output="screen" />
     <node name="image_saver_node" type="image_saver_node" pkg="quad_agent" output="screen" />
-    <!-- <node name="missionchecker_node" type="missionchecker_node" pkg="quad_agent" output =
-    "screen"/> -->
+    <node name="missionchecker_node" type="missionchecker_node" pkg="quad_agent" output="screen" />
 </launch>

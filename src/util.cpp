@@ -76,8 +76,7 @@ geographic_msgs::GeoPoseStamped create_pose(double latitude,
                                             double altitude) {
     geographic_msgs::GeoPoseStamped waypoint;
     waypoint.header.stamp = ros::Time::now();
-    waypoint.header.frame_id =
-        "map";  // Frame should be "map" for GPS waypoints
+    waypoint.header.frame_id = "map";  // Frame should be "map" for GPS waypoints
     waypoint.pose.position.latitude = latitude;
     waypoint.pose.position.longitude = longitude;
     waypoint.pose.position.altitude = altitude;
@@ -103,4 +102,127 @@ void setMode(ros::ServiceClient &set_mode_client, const std::string &mode) {
     } else {
         ROS_ERROR_STREAM("Failed to set mode: " << mode);
     }
+}
+
+// // Function to initialize the log file with a unique name based on timestamp
+// void initLogFile() {
+//     std::stringstream log_file_name;
+//     log_file_name << "/home/bota/catkin_ws_rm/src/quad_agent/logs/mission_node_log_" << ros::Time::now() << ".txt";
+//     log_file.open(log_file_name.str());
+//     if (!log_file.is_open()) {
+//         ROS_ERROR("Failed to open log file: %s", log_file_name.str().c_str());
+//     } else {
+//         ROS_INFO("Logging to file: %s", log_file_name.str().c_str());
+//     }
+// }
+
+// void logMessage(const std::string &message) {
+//     std::ostringstream oss;
+//     oss << "[" << ros::Time::now() << "] " << message;
+
+//     // Log to ROS
+//     ROS_INFO_STREAM(oss.str());
+
+//     // Log to file
+//     if (log_file.is_open()) {
+//         log_file << oss.str() << std::endl;
+//         log_file.flush();  // Ensure data is written immediately
+//     } else {
+//         ROS_WARN("Log file is not open, message not logged to file: %s", message.c_str());
+//     }
+// }
+
+// // Function to close the log file
+// void closeLogFile() {
+//     if (log_file.is_open()) {
+//         log_file.close();
+//     }
+// }
+
+class Logger {
+   public:
+    Logger(const std::string &folder_name, const std::string &file_name_prefix) {
+        initLogFile(folder_name, file_name_prefix);
+    }
+
+    ~Logger() {
+        closeLogFile();
+    }
+
+    void logMessage(const std::string &message) {
+        std::ostringstream oss;
+        oss << "[" << ros::Time::now() << "] " << message;
+
+        // Log to ROS
+        // ROS_INFO_STREAM(oss.str());
+
+        // Log to file
+        if (log_file.is_open()) {
+            log_file << oss.str() << std::endl;
+            log_file.flush();  // Ensure data is written immediately
+        } else {
+            ROS_WARN("Log file is not open, message not logged to file: %s", message.c_str());
+        }
+    }
+
+   private:
+    std::ofstream log_file;
+
+    void initLogFile(const std::string &folder_name, const std::string &file_name_prefix) {
+        std::stringstream log_file_name;
+        log_file_name << folder_name << "/" << file_name_prefix << ".txt";
+        log_file.open(log_file_name.str());
+        if (!log_file.is_open()) {
+            ROS_ERROR("Failed to open log file: %s", log_file_name.str().c_str());
+        } else {
+            ROS_INFO("Logging to file: %s", log_file_name.str().c_str());
+        }
+    }
+
+    void closeLogFile() {
+        if (log_file.is_open()) {
+            log_file.close();
+        }
+    }
+};
+
+std::string getCurrentDateTime() {
+    auto now = std::chrono::system_clock::now();
+    // auto ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+
+    std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+    std::tm now_tm = *std::localtime(&now_c);
+
+    char buffer[80];
+    strftime(buffer, sizeof(buffer), "%H-%M", &now_tm);
+    std::stringstream ss;
+    ss << buffer;
+    return ss.str();
+}
+
+void ensureDirectoryExists(const std::string &path) {
+    struct stat info;
+    if (stat(path.c_str(), &info) != 0) {
+        if (mkdir(path.c_str(), 0777) != 0) {
+            ROS_ERROR("Failed to create directory: %s", path.c_str());
+        }
+    } else if (!(info.st_mode & S_IFDIR)) {
+        ROS_ERROR("Path exists but is not a directory: %s", path.c_str());
+    }
+}
+
+std::string createLogFolder() {
+    std::string folder_name = "/home/bota/catkin_ws_rm/src/quad_agent/logs/";
+
+    std::time_t rawtime = std::time(nullptr);
+    struct std::tm *timeinfo = std::localtime(&rawtime);
+    char buffer[80];
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d", timeinfo);
+    folder_name += buffer;
+    ensureDirectoryExists(folder_name);
+
+    std::string folder_path = folder_name + "/" + getCurrentDateTime();
+    ensureDirectoryExists(folder_path);
+
+    return folder_path;
 }
