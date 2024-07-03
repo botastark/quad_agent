@@ -8,6 +8,7 @@
     /> -->
     <arg name="sdf"
         default="$(find quad_agent)/models/iris_fpv_cam.sdf" />
+    <!-- <arg name="world" default="$(find mavlink_sitl_gazebo)/worlds/mcmillan_airfield.world" /> -->
 
     <include file="$(find px4)/launch/mavros_posix_sitl.launch">
         <arg name="respawn_gazebo" value="true" />
@@ -16,7 +17,9 @@
         <arg name="gcs_url" value="$(arg gcs_url)" />
         <arg name="vehicle" value="$(arg vehicle)" />
         <arg name="sdf" value="$(arg sdf)" />
+        <!-- <arg name="world" value="$(arg world)" /> -->
         <arg name="verbose" value="true" />
+
     </include>
     <!-- Launch your mission node -->
     <node name="mission_node" type="mission_node" pkg="quad_agent" output="screen" />

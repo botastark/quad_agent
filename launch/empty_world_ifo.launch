@@ -16,8 +16,7 @@
         <arg name="verbose" value="$(arg verbose)" />
         <arg name="paused" value="$(arg paused)" />
 
-        <!--<arg
-        name="world_name" value="$(find quad_agent)/worlds/empty_world.world"/>-->
+        <arg name="world_name" value="/worlds/safe_landing.world" />
     </include>
 
     <!-- ================================================================== -->

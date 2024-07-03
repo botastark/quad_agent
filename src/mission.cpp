@@ -1,13 +1,8 @@
 #include "util.cpp"
-// double altitude_hrlv = 0.0;
 bool reached_target = false;
 bool current_gps_received = false;
 
 #include <sensor_msgs/Range.h>
-
-// void altitudeCallback(const sensor_msgs::Range::ConstPtr &msg) {
-//     altitude_hrlv = msg->range;
-// }
 
 void gpsCallback(const sensor_msgs::NavSatFix::ConstPtr &msg) {
     current_gps_received = true;
@@ -40,20 +35,20 @@ int main(int argc, char **argv) {
 
     {
         Logger logger(log_folder, "mission_log");
-        // initLogFile();
 
         ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>("mavros/state", 10, stateCallback);
         ros::Subscriber gps_sub = nh.subscribe<sensor_msgs::NavSatFix>("mavros/global_position/global", 10, gpsCallback);
         ros::Subscriber mission_complete_sub = nh.subscribe<std_msgs::Bool>("reached_target", 10, reachedTargetCallback);
-        //
-        // ros::Subscriber sub = nh.subscribe<sensor_msgs::Range>("/mavros/distance_sensor/hrlv_ez4_pub", 10, altitudeCallback);
-
-        ros::Publisher global_pos_pub = nh.advertise<geographic_msgs::GeoPoseStamped>("mavros/setpoint_position/global", 10);
+        ros::Publisher global_pos_pub = nh.advertise<mavros_msgs::GlobalPositionTarget>("/mavros/setpoint_raw/global", 10);
         ros::Publisher take_picture_pub = nh.advertise<std_msgs::Bool>("take_picture", 10);
 
         ros::ServiceClient arming_client = nh.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
         ros::ServiceClient set_mode_client = nh.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
+        ros::ServiceClient set_mav_frame_client = nh.serviceClient<mavros_msgs::SetMavFrame>("mavros/setpoint_position/mav_frame");
         ros::Rate rate(20.0);
+
+        signal(SIGINT, sigintHandler);
+        signal(SIGTERM, sigintHandler);
 
         // Wait for FCU connection
         while (ros::ok() && !current_state.connected) {
@@ -73,16 +68,18 @@ int main(int argc, char **argv) {
         ROS_INFO("GPS position received");
         logger.logMessage("GPS position received");
 
-        geographic_msgs::GeoPoseStamped goal_position, home_position;
+        // geographic_msgs::GeoPoseStamped goal_position, home_position;
+        mavros_msgs::GlobalPositionTarget goal_position, home_position;
         home_position = create_pose(current_gps.pose.position.latitude,
                                     current_gps.pose.position.longitude,
-                                    current_gps.pose.position.altitude);
+                                    5.0);
+        double temp_home_alt = current_gps.pose.position.altitude;
         ROS_INFO("HOME POSITION");
         ROS_INFO_STREAM(home_position);
 
-        logger.logMessage("HOME POSITION: lat=" + std::to_string(home_position.pose.position.latitude) +
-                          ", lon=" + std::to_string(home_position.pose.position.longitude) +
-                          ", alt=" + std::to_string(home_position.pose.position.altitude));
+        logger.logMessage("HOME POSITION: lat=" + std::to_string(home_position.latitude) +
+                          ", lon=" + std::to_string(home_position.longitude) +
+                          ", alt=" + std::to_string(home_position.altitude));
 
         std::string filename = "/home/bota/catkin_ws_rm/src/quad_agent/path/waypoints.txt";  // File containing waypoints
 
@@ -90,12 +87,9 @@ int main(int argc, char **argv) {
         if (waypoints.empty()) {
             logger.logMessage("Couldn't read waypoints file");
         }
-        double temp_home_alt = home_position.pose.position.altitude;
 
         // send a few setpoints before starting
         for (int i = 100; ros::ok() && i > 0; --i) {
-            home_position.header.stamp = ros::Time::now();
-            home_position.pose.position.altitude = temp_home_alt + 2.5;
             global_pos_pub.publish(home_position);
             ros::spinOnce();
             rate.sleep();
@@ -103,10 +97,8 @@ int main(int argc, char **argv) {
         logger.logMessage("Sending a few point before starting");
 
         setMode(set_mode_client, "OFFBOARD");
-        // Waiting for OFFBOARD
         // Wait for offboard (setting to offboard is done via RC/QGC)
         while (ros::ok() && current_state.mode != "OFFBOARD") {
-            home_position.header.stamp = ros::Time::now();
             global_pos_pub.publish(home_position);
             ros::spinOnce();
             rate.sleep();
@@ -116,7 +108,6 @@ int main(int argc, char **argv) {
 
         armDrone(arming_client);
         while (ros::ok() && !current_state.armed) {
-            home_position.header.stamp = ros::Time::now();
             global_pos_pub.publish(home_position);
             ros::spinOnce();
             rate.sleep();
@@ -127,15 +118,14 @@ int main(int argc, char **argv) {
 
         // Navigate to each waypoint
         for (const auto &waypoint : waypoints) {
-            std::string waypoint_log = "Navigating to waypoint: " + std::to_string(waypoint.latitude) + ", " + std::to_string(waypoint.longitude) + ", " + std::to_string(waypoint.altitude + temp_home_alt);
+            std::string waypoint_log = "Navigating to waypoint: " + std::to_string(waypoint.latitude) + ", " + std::to_string(waypoint.longitude) + ", " + std::to_string(waypoint.altitude);
             logger.logMessage(waypoint_log);
             ROS_INFO_STREAM(waypoint_log);
 
-            goal_position = create_pose(waypoint.latitude, waypoint.longitude, waypoint.altitude + temp_home_alt);
+            goal_position = create_pose(waypoint.latitude, waypoint.longitude, waypoint.altitude);
             global_pos_pub.publish(goal_position);
             // Wait for waypoint reached
             while (ros::ok() && !reached_target) {
-                goal_position.header.stamp = ros::Time::now();
                 global_pos_pub.publish(goal_position);
                 ros::spinOnce();
                 rate.sleep();
@@ -146,7 +136,6 @@ int main(int argc, char **argv) {
             // Hover for 1 second to stabilize the drone
             ros::Time start_time = ros::Time::now();
             while (ros::ok() && (ros::Time::now() - start_time).toSec() < 1.0) {
-                goal_position.header.stamp = ros::Time::now();
                 global_pos_pub.publish(goal_position);
                 ros::spinOnce();
                 rate.sleep();
@@ -159,18 +148,28 @@ int main(int argc, char **argv) {
 
             start_time = ros::Time::now();
             while (ros::ok() && (ros::Time::now() - start_time).toSec() < 1.0) {
-                goal_position.header.stamp = ros::Time::now();
                 global_pos_pub.publish(goal_position);
                 ros::spinOnce();
                 rate.sleep();
             }
         }
+        ROS_INFO_ONCE("Done with the survey");
+        logger.logMessage("Done with the survey");
 
         // Return to home
-        home_position.header.stamp = ros::Time::now();
+        reached_target = false;
         global_pos_pub.publish(home_position);
+        start_time = ros::Time::now();
+
+        while (ros::ok() && (ros::Time::now() - start_time).toSec() < 2.0) {
+            global_pos_pub.publish(home_position);
+            ROS_INFO_ONCE("Returning to home");
+            logger.logMessage("Returning to home");
+            ros::spinOnce();
+            rate.sleep();
+        }
+
         while (ros::ok() && !reached_target) {
-            home_position.header.stamp = ros::Time::now();
             global_pos_pub.publish(home_position);
             ROS_INFO_ONCE("Returning to home");
             logger.logMessage("Returning to home");
@@ -180,32 +179,12 @@ int main(int argc, char **argv) {
 
         // Wait for landing
 
-        setMode(set_mode_client, "AUTO.LAND");
-
-        ROS_INFO("Drone start landing");
-        logger.logMessage("Drone start landing");
-
-        ros::Time land_start = ros::Time::now();
         while (ros::ok() && current_state.mode != "AUTO.LAND") {
             setMode(set_mode_client, "AUTO.LAND");
             ROS_INFO_ONCE("Drone setting to land");
             logger.logMessage("Drone keep setting to land");
             ros::spinOnce();
             rate.sleep();
-        }
-        home_position.pose.position.altitude = temp_home_alt;
-        // Wait for 15 seconds after landing (regardless of landing confirmation)
-        while (ros::ok() && !reached_target) {
-            goal_position.header.stamp = ros::Time::now();
-            global_pos_pub.publish(home_position);
-            ROS_INFO_ONCE("Drone landing");
-            logger.logMessage("Drone keep setting to land");
-            ros::spinOnce();
-            rate.sleep();
-        }
-        if (reached_target) {
-            ROS_INFO("Drone has landed");
-            logger.logMessage("Drone has landed");
         }
 
         ROS_INFO("Mission complete");

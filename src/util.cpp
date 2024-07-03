@@ -1,5 +1,5 @@
 #include "mission.h"
-// Need to WGS84->amsl of gps altitude
+// Need to ->amsl of gps altitude
 //"When controlling the FCU using global setpoints, you specify the altitude as
 // meters above mean sea level (AMSL). But when sensing the global position, the
 // altitude reported by ~global_position/global is specified as meters above the
@@ -59,10 +59,7 @@ std::vector<GPSPosition> readWaypointsFromFile(const std::string &filename, doub
         double lat, lon, alt;
         ss >> lat >> lon >> alt;
 
-        // Add current GPS altitude to the read altitude
         // alt += currentGpsAltitude;
-
-        // Add the waypoint to the vector
         waypoints.push_back({lat, lon, alt});
     }
 
@@ -70,17 +67,25 @@ std::vector<GPSPosition> readWaypointsFromFile(const std::string &filename, doub
     return waypoints;
 }
 
-// Function to create geo msgs for a GPS waypoint
-geographic_msgs::GeoPoseStamped create_pose(double latitude,
-                                            double longitude,
-                                            double altitude) {
-    geographic_msgs::GeoPoseStamped waypoint;
-    waypoint.header.stamp = ros::Time::now();
-    waypoint.header.frame_id = "map";  // Frame should be "map" for GPS waypoints
-    waypoint.pose.position.latitude = latitude;
-    waypoint.pose.position.longitude = longitude;
-    waypoint.pose.position.altitude = altitude;
-    return waypoint;
+// http://docs.ros.org/en/noetic/api/mavros_msgs/html/msg/GlobalPositionTarget.html
+mavros_msgs::GlobalPositionTarget create_pose(double latitude,
+                                              double longitude,
+                                              double altitude) {
+    mavros_msgs::GlobalPositionTarget setpoint;
+    setpoint.latitude = latitude;
+    setpoint.longitude = longitude;
+    setpoint.altitude = altitude;
+    setpoint.coordinate_frame = mavros_msgs::GlobalPositionTarget::FRAME_GLOBAL_TERRAIN_ALT;
+    setpoint.type_mask = mavros_msgs::GlobalPositionTarget::IGNORE_VX |
+                         mavros_msgs::GlobalPositionTarget::IGNORE_VY |
+                         mavros_msgs::GlobalPositionTarget::IGNORE_VZ |
+                         mavros_msgs::GlobalPositionTarget::IGNORE_AFX |
+                         mavros_msgs::GlobalPositionTarget::IGNORE_AFY |
+                         mavros_msgs::GlobalPositionTarget::IGNORE_AFZ |
+                         mavros_msgs::GlobalPositionTarget::FORCE |
+                         mavros_msgs::GlobalPositionTarget::IGNORE_YAW_RATE |
+                         mavros_msgs::GlobalPositionTarget::IGNORE_YAW;
+    return setpoint;
 }
 
 void armDrone(ros::ServiceClient &arming_client) {
@@ -104,40 +109,25 @@ void setMode(ros::ServiceClient &set_mode_client, const std::string &mode) {
     }
 }
 
-// // Function to initialize the log file with a unique name based on timestamp
-// void initLogFile() {
-//     std::stringstream log_file_name;
-//     log_file_name << "/home/bota/catkin_ws_rm/src/quad_agent/logs/mission_node_log_" << ros::Time::now() << ".txt";
-//     log_file.open(log_file_name.str());
-//     if (!log_file.is_open()) {
-//         ROS_ERROR("Failed to open log file: %s", log_file_name.str().c_str());
-//     } else {
-//         ROS_INFO("Logging to file: %s", log_file_name.str().c_str());
-//     }
-// }
+void setMavFrame(ros::ServiceClient &set_mav_frame_client, uint8_t frame, const std::string &frame_name) {
+    mavros_msgs::SetMavFrame srv;
+    srv.request.mav_frame = frame;
+    if (set_mav_frame_client.call(srv) && srv.response.success) {
+        ROS_INFO_STREAM("Successfully set MAV frame to: " << frame_name);
+    } else {
+        ROS_ERROR_STREAM("Failed to set MAV frame to: " << frame_name);
+    }
+}
 
-// void logMessage(const std::string &message) {
-//     std::ostringstream oss;
-//     oss << "[" << ros::Time::now() << "] " << message;
+#include <signal.h>
 
-//     // Log to ROS
-//     ROS_INFO_STREAM(oss.str());
+bool g_shutdown_requested = false;
 
-//     // Log to file
-//     if (log_file.is_open()) {
-//         log_file << oss.str() << std::endl;
-//         log_file.flush();  // Ensure data is written immediately
-//     } else {
-//         ROS_WARN("Log file is not open, message not logged to file: %s", message.c_str());
-//     }
-// }
-
-// // Function to close the log file
-// void closeLogFile() {
-//     if (log_file.is_open()) {
-//         log_file.close();
-//     }
-// }
+void sigintHandler(int sig) {
+    g_shutdown_requested = true;
+    ROS_INFO("Shutting down...");
+    ros::shutdown();  // Initiate ROS shutdown
+}
 
 class Logger {
    public:
@@ -148,13 +138,39 @@ class Logger {
     ~Logger() {
         closeLogFile();
     }
+    enum LogLevel {
+        INFO,
+        WARN,
+        ERROR,
+        ROS_INFO_ONCE
+    };
 
-    void logMessage(const std::string &message) {
+    void logMessage(const std::string &message, LogLevel level = INFO) {
         std::ostringstream oss;
-        oss << "[" << ros::Time::now() << "] " << message;
+        // oss << "[" << ros::Time::now().toSec << "] " << std::fixed << std::setprecision(15) << message;  // Set precision to 6 decimal places
+        std::string log_level_prefix;
+        if (g_shutdown_requested) {
+            return;  // If shutdown requested, do not log further
+        }
+        switch (level) {
+            case INFO:
+                log_level_prefix = "INFO";
+                break;
+            case WARN:
+                log_level_prefix = "WARN";
+                break;
+            case ERROR:
+                log_level_prefix = "ERROR";
+                break;
+            case ROS_INFO_ONCE:
+                log_level_prefix = "ROS_INFO_ONCE";
+                break;
+            default:
+                log_level_prefix = "INFO";  // Default to INFO level if unspecified
+                break;
+        }
 
-        // Log to ROS
-        // ROS_INFO_STREAM(oss.str());
+        oss << log_level_prefix << " [" << std::fixed << std::setprecision(9) << ros::Time::now().toSec() << "]: " << std::fixed << std::setprecision(15) << message;
 
         // Log to file
         if (log_file.is_open()) {
@@ -224,4 +240,10 @@ std::string createLogFolder() {
     ensureDirectoryExists(folder_path);
 
     return folder_path;
+}
+
+std::string to_string_with_precision(double value, int precision = 14) {
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(precision) << value;
+    return oss.str();
 }

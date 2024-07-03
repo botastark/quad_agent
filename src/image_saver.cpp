@@ -56,24 +56,6 @@ class ImageSaver {
                 // Generate folder path with current date as name
                 std::time_t rawtime = std::chrono::system_clock::to_time_t(now);
                 struct std::tm* timeinfo = std::localtime(&rawtime);
-                // char buffer[80];
-                // strftime(buffer, sizeof(buffer), "%Y-%m-%d", timeinfo);
-
-                // std::string date_folder_path = survey_folder_ + "/" + buffer;
-
-                // Create directory if it does not exist
-                // if (access(date_folder_path.c_str(), F_OK) == -1) {
-                //     mkdir(date_folder_path.c_str(), 0777);
-                // }
-
-                // std::stringstream time_subfolder;
-                // time_subfolder << std::put_time(timeinfo, "%H-%M-%S");
-                // std::string date_folder = time_subfolder.str();
-
-                // date_folder_path = date_folder_path + "/" + date_folder;
-                // if (access(date_folder_path.c_str(), F_OK) == -1) {
-                //     mkdir(date_folder_path.c_str(), 0777);
-                // }
 
                 // Generate filename with precise current time (hours, minutes, seconds, milliseconds)
                 std::stringstream time_filename;
