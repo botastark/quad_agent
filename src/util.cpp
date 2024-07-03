@@ -38,13 +38,16 @@ double haversine(double lat1, double lon1, double lat2, double lon2) {
 }
 
 // Function to read waypoints from a file and add current GPS altitude
-std::vector<GPSPosition> readWaypointsFromFile(const std::string &filename, double currentGpsAltitude) {
+std::vector<GPSPosition> readWaypointsFromFile(const std::string &filename, double currentGpsAltitude, std::string altitude_mode) {
     std::vector<GPSPosition> waypoints;
     std::ifstream infile(filename);
-
+    float offset = 0.0;
     if (!infile.is_open()) {
         std::cerr << "Error opening file: " << filename << std::endl;
         return waypoints;
+    }
+    if (altitude_mode == "int") {
+        offset = currentGpsAltitude;  // asml
     }
 
     std::string line;
@@ -59,7 +62,7 @@ std::vector<GPSPosition> readWaypointsFromFile(const std::string &filename, doub
         double lat, lon, alt;
         ss >> lat >> lon >> alt;
 
-        // alt += currentGpsAltitude;
+        alt += offset;
         waypoints.push_back({lat, lon, alt});
     }
 
@@ -70,12 +73,22 @@ std::vector<GPSPosition> readWaypointsFromFile(const std::string &filename, doub
 // http://docs.ros.org/en/noetic/api/mavros_msgs/html/msg/GlobalPositionTarget.html
 mavros_msgs::GlobalPositionTarget create_pose(double latitude,
                                               double longitude,
-                                              double altitude) {
+                                              double altitude,
+                                              std::string altitude_mode) {
     mavros_msgs::GlobalPositionTarget setpoint;
     setpoint.latitude = latitude;
     setpoint.longitude = longitude;
     setpoint.altitude = altitude;
-    setpoint.coordinate_frame = mavros_msgs::GlobalPositionTarget::FRAME_GLOBAL_TERRAIN_ALT;
+    if (altitude_mode == "int") {
+        setpoint.coordinate_frame = mavros_msgs::GlobalPositionTarget::FRAME_GLOBAL_INT;
+    } else if (altitude_mode == "rel_alt") {
+        setpoint.coordinate_frame = mavros_msgs::GlobalPositionTarget::FRAME_GLOBAL_REL_ALT;
+    } else if (altitude_mode == "terrain_alt") {
+        setpoint.coordinate_frame = mavros_msgs::GlobalPositionTarget::FRAME_GLOBAL_TERRAIN_ALT;
+    } else {
+        setpoint.coordinate_frame = mavros_msgs::GlobalPositionTarget::FRAME_GLOBAL_INT;
+    }
+
     setpoint.type_mask = mavros_msgs::GlobalPositionTarget::IGNORE_VX |
                          mavros_msgs::GlobalPositionTarget::IGNORE_VY |
                          mavros_msgs::GlobalPositionTarget::IGNORE_VZ |
@@ -92,7 +105,7 @@ void armDrone(ros::ServiceClient &arming_client) {
     mavros_msgs::CommandBool arm_cmd;
     arm_cmd.request.value = true;
     if (arming_client.call(arm_cmd) && arm_cmd.response.success) {
-        ROS_INFO("Drone armed");
+        ROS_INFO_ONCE("Drone armed");
     } else {
         ROS_ERROR("Failed to arm the drone");
     }
@@ -103,19 +116,9 @@ void setMode(ros::ServiceClient &set_mode_client, const std::string &mode) {
     offb_set_mode.request.custom_mode = mode;
     if (set_mode_client.call(offb_set_mode) &&
         offb_set_mode.response.mode_sent) {
-        ROS_INFO_STREAM("Mode set to: " << mode);
+        ROS_INFO_STREAM_ONCE("Mode set to: " << mode);
     } else {
         ROS_ERROR_STREAM("Failed to set mode: " << mode);
-    }
-}
-
-void setMavFrame(ros::ServiceClient &set_mav_frame_client, uint8_t frame, const std::string &frame_name) {
-    mavros_msgs::SetMavFrame srv;
-    srv.request.mav_frame = frame;
-    if (set_mav_frame_client.call(srv) && srv.response.success) {
-        ROS_INFO_STREAM("Successfully set MAV frame to: " << frame_name);
-    } else {
-        ROS_ERROR_STREAM("Failed to set MAV frame to: " << frame_name);
     }
 }
 

@@ -1,6 +1,7 @@
 #include <geographic_msgs/GeoPoseStamped.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Vector3.h>
+#include <mavros_msgs/Altitude.h>
 #include <mavros_msgs/CommandBool.h>
 #include <mavros_msgs/GlobalPositionTarget.h>
 #include <mavros_msgs/SetMavFrame.h>

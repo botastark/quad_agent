@@ -1,8 +1,15 @@
 #include "util.cpp"
 bool reached_target = false;
 bool current_gps_received = false;
+std::string altitude_mode = "rel_alt";  //"rel_alt" and "terrain_alt" "int"
 
-#include <sensor_msgs/Range.h>
+std::string filename = "/home/bota/catkin_ws_rm/src/quad_agent/path/waypoints.txt";  // File containing waypoints
+
+mavros_msgs::Altitude altitude;
+
+void altCallback(const mavros_msgs::Altitude::ConstPtr &msg) {
+    altitude = *msg;
+}
 
 void gpsCallback(const sensor_msgs::NavSatFix::ConstPtr &msg) {
     current_gps_received = true;
@@ -21,7 +28,6 @@ void reachedTargetCallback(const std_msgs::Bool::ConstPtr &msg) {
     reached_target = msg->data;
 }
 
-// TODO: Function to take a picture
 void takePicture(ros::Publisher &take_picture_pub) {
     std_msgs::Bool msg;
     msg.data = true;
@@ -31,6 +37,7 @@ void takePicture(ros::Publisher &take_picture_pub) {
 int main(int argc, char **argv) {
     ros::init(argc, argv, "mission_node");
     ros::NodeHandle nh;
+    // nh.param<std::string>("altitude_mode", altitude_mode, "int");
     std::string log_folder = createLogFolder();
 
     {
@@ -39,12 +46,15 @@ int main(int argc, char **argv) {
         ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>("mavros/state", 10, stateCallback);
         ros::Subscriber gps_sub = nh.subscribe<sensor_msgs::NavSatFix>("mavros/global_position/global", 10, gpsCallback);
         ros::Subscriber mission_complete_sub = nh.subscribe<std_msgs::Bool>("reached_target", 10, reachedTargetCallback);
+        ros::Subscriber alt_sub = nh.subscribe<mavros_msgs::Altitude>("mavros/altitude", 10, altCallback);
+
         ros::Publisher global_pos_pub = nh.advertise<mavros_msgs::GlobalPositionTarget>("/mavros/setpoint_raw/global", 10);
         ros::Publisher take_picture_pub = nh.advertise<std_msgs::Bool>("take_picture", 10);
 
         ros::ServiceClient arming_client = nh.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
         ros::ServiceClient set_mode_client = nh.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
         ros::ServiceClient set_mav_frame_client = nh.serviceClient<mavros_msgs::SetMavFrame>("mavros/setpoint_position/mav_frame");
+
         ros::Rate rate(20.0);
 
         signal(SIGINT, sigintHandler);
@@ -69,12 +79,21 @@ int main(int argc, char **argv) {
         ROS_INFO("GPS position received");
         logger.logMessage("GPS position received");
 
-        // geographic_msgs::GeoPoseStamped goal_position, home_position;
         mavros_msgs::GlobalPositionTarget goal_position, home_position;
+
+        float home_alt = 0.0;
+
+        if (altitude_mode == "terrain_alt") {  // above terrain alt
+            home_alt = altitude.terrain;
+        } else if (altitude_mode == "rel_alt") {  // arel home
+            home_alt = altitude.relative;
+        } else {  // absolute
+            home_alt = current_gps.pose.position.altitude;
+        }
         home_position = create_pose(current_gps.pose.position.latitude,
                                     current_gps.pose.position.longitude,
-                                    5.0);
-        double temp_home_alt = current_gps.pose.position.altitude;
+                                    home_alt + 5.0,
+                                    altitude_mode);
         ROS_INFO("HOME POSITION");
         ROS_INFO_STREAM(home_position);
 
@@ -82,9 +101,8 @@ int main(int argc, char **argv) {
                           ", lon=" + std::to_string(home_position.longitude) +
                           ", alt=" + std::to_string(home_position.altitude));
 
-        std::string filename = "/home/bota/catkin_ws_rm/src/quad_agent/path/waypoints.txt";  // File containing waypoints
+        std::vector<GPSPosition> waypoints = readWaypointsFromFile(filename, current_gps.pose.position.altitude, altitude_mode);
 
-        std::vector<GPSPosition> waypoints = readWaypointsFromFile(filename, current_gps.pose.position.altitude);
         if (waypoints.empty()) {
             logger.logMessage("Couldn't read waypoints file");
         }
@@ -101,10 +119,11 @@ int main(int argc, char **argv) {
         while (ros::ok() && current_state.mode != "OFFBOARD") {
             setMode(set_mode_client, "OFFBOARD");
             global_pos_pub.publish(home_position);
-            logger.logMessageOnce("setting to offboard");
+            logger.logMessageOnce("setting to OFFBOARD");
             ros::spinOnce();
             rate.sleep();
         }
+
         ROS_INFO("Drone is in OFFBOARD mode.");
         logger.logMessage("Drone is in OFFBOARD mode.");
 
@@ -125,7 +144,7 @@ int main(int argc, char **argv) {
             logger.logMessage(waypoint_log);
             ROS_INFO_STREAM(waypoint_log);
 
-            goal_position = create_pose(waypoint.latitude, waypoint.longitude, waypoint.altitude);
+            goal_position = create_pose(waypoint.latitude, waypoint.longitude, waypoint.altitude, altitude_mode);
             global_pos_pub.publish(goal_position);
             // Wait for waypoint reached
             while (ros::ok() && !reached_target) {
@@ -162,16 +181,6 @@ int main(int argc, char **argv) {
         // Return to home
         reached_target = false;
         global_pos_pub.publish(home_position);
-        start_time = ros::Time::now();
-
-        while (ros::ok() && (ros::Time::now() - start_time).toSec() < 2.0) {
-            global_pos_pub.publish(home_position);
-            ROS_INFO_ONCE("Returning to home");
-            logger.logMessageOnce("Returning to home");
-
-            ros::spinOnce();
-            rate.sleep();
-        }
 
         while (ros::ok() && !reached_target) {
             global_pos_pub.publish(home_position);
@@ -182,7 +191,6 @@ int main(int argc, char **argv) {
         }
 
         // Wait for landing
-
         while (ros::ok() && current_state.mode != "AUTO.LAND") {
             setMode(set_mode_client, "AUTO.LAND");
             ROS_INFO_ONCE("Drone setting to land");
