@@ -141,11 +141,10 @@ class Logger {
     enum LogLevel {
         INFO,
         WARN,
-        ERROR,
-        ROS_INFO_ONCE
+        ERROR
     };
 
-    void logMessage(const std::string &message, LogLevel level = INFO) {
+    void logMessage(const std::string &message, LogLevel level = INFO, bool log_once = false) {
         std::ostringstream oss;
         // oss << "[" << ros::Time::now().toSec << "] " << std::fixed << std::setprecision(15) << message;  // Set precision to 6 decimal places
         std::string log_level_prefix;
@@ -162,9 +161,6 @@ class Logger {
             case ERROR:
                 log_level_prefix = "ERROR";
                 break;
-            case ROS_INFO_ONCE:
-                log_level_prefix = "ROS_INFO_ONCE";
-                break;
             default:
                 log_level_prefix = "INFO";  // Default to INFO level if unspecified
                 break;
@@ -180,9 +176,18 @@ class Logger {
             ROS_WARN("Log file is not open, message not logged to file: %s", message.c_str());
         }
     }
+    void logMessageOnce(const std::string &message, LogLevel level = INFO) {
+        if (g_shutdown_requested || logged_messages.count(message) > 0) {
+            return;  // If shutdown requested or message already logged, do not log further
+        }
+
+        logged_messages.insert(message);
+        logMessage(message, level);
+    }
 
    private:
     std::ofstream log_file;
+    std::set<std::string> logged_messages;
 
     void initLogFile(const std::string &folder_name, const std::string &file_name_prefix) {
         std::stringstream log_file_name;

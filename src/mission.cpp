@@ -62,6 +62,7 @@ int main(int argc, char **argv) {
         // wait for position information
         while (ros::ok() && !current_gps_received) {
             ROS_INFO_ONCE("Waiting for GPS signal...");
+            logger.logMessageOnce("Waiting for GPS signal...");
             ros::spinOnce();
             rate.sleep();
         }
@@ -96,19 +97,21 @@ int main(int argc, char **argv) {
         }
         logger.logMessage("Sending a few point before starting");
 
-        setMode(set_mode_client, "OFFBOARD");
         // Wait for offboard (setting to offboard is done via RC/QGC)
         while (ros::ok() && current_state.mode != "OFFBOARD") {
+            setMode(set_mode_client, "OFFBOARD");
             global_pos_pub.publish(home_position);
+            logger.logMessageOnce("setting to offboard");
             ros::spinOnce();
             rate.sleep();
         }
         ROS_INFO("Drone is in OFFBOARD mode.");
         logger.logMessage("Drone is in OFFBOARD mode.");
 
-        armDrone(arming_client);
         while (ros::ok() && !current_state.armed) {
+            armDrone(arming_client);
             global_pos_pub.publish(home_position);
+            logger.logMessageOnce("arming");
             ros::spinOnce();
             rate.sleep();
         }
@@ -153,7 +156,7 @@ int main(int argc, char **argv) {
                 rate.sleep();
             }
         }
-        ROS_INFO_ONCE("Done with the survey");
+        ROS_INFO("Done with the survey");
         logger.logMessage("Done with the survey");
 
         // Return to home
@@ -164,7 +167,8 @@ int main(int argc, char **argv) {
         while (ros::ok() && (ros::Time::now() - start_time).toSec() < 2.0) {
             global_pos_pub.publish(home_position);
             ROS_INFO_ONCE("Returning to home");
-            logger.logMessage("Returning to home");
+            logger.logMessageOnce("Returning to home");
+
             ros::spinOnce();
             rate.sleep();
         }
@@ -172,7 +176,7 @@ int main(int argc, char **argv) {
         while (ros::ok() && !reached_target) {
             global_pos_pub.publish(home_position);
             ROS_INFO_ONCE("Returning to home");
-            logger.logMessage("Returning to home");
+            logger.logMessageOnce("Returning to home");
             ros::spinOnce();
             rate.sleep();
         }
@@ -182,7 +186,7 @@ int main(int argc, char **argv) {
         while (ros::ok() && current_state.mode != "AUTO.LAND") {
             setMode(set_mode_client, "AUTO.LAND");
             ROS_INFO_ONCE("Drone setting to land");
-            logger.logMessage("Drone keep setting to land");
+            logger.logMessageOnce("Drone keep setting to land");
             ros::spinOnce();
             rate.sleep();
         }
@@ -190,6 +194,5 @@ int main(int argc, char **argv) {
         ROS_INFO("Mission complete");
         logger.logMessage("Mission complete");
     }
-    // closeLogFile();
     return 0;
 }

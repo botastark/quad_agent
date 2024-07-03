@@ -36,8 +36,7 @@ std_msgs::Bool missionComplete() {
         haversine(current_target_global.x, current_target_global.y,
                   current_gps.pose.position.latitude,
                   current_gps.pose.position.longitude);
-    double hori_dist =
-        current_gps.pose.position.altitude - current_target_global.z;
+    double hori_dist = current_gps.pose.position.altitude - current_target_global.z;
     double dist = sqrt(vert_dist * vert_dist + hori_dist * hori_dist);
 
     logger->logMessage("alt: " + to_string_with_precision(current_gps.pose.position.altitude) +
