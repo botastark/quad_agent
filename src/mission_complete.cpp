@@ -1,7 +1,9 @@
 #include "util.cpp"
 
-mavros_msgs::Altitude altitude;
-std::string altitude_mode = "rel_alt";  //"rel_alt" and "terrain_alt" "int"
+// mavros_msgs::Altitude altitude;
+// std::string altitude_mode = "rel_alt";  //"rel_alt" and "terrain_alt" "int"
+// std::string tol_filename = "/home/bota/catkin_ws_rm/src/quad_agent/path/tolerances.txt";
+// std::string log_folder_base = "/home/bota/catkin_ws_rm/src/quad_agent/logs/";
 
 std_msgs::Bool reached_target;
 geometry_msgs::Vector3 current_target_global;
@@ -26,9 +28,9 @@ void altCallback(const mavros_msgs::Altitude::ConstPtr &msg) {
     altitude = *msg;
 }
 
-// void stateCallback(const mavros_msgs::State::ConstPtr &msg) {
-//     current_state = *msg;
-// }
+void stateCallback(const mavros_msgs::State::ConstPtr &msg) {
+    current_state = *msg;
+}
 
 void targetCallback(const mavros_msgs::GlobalPositionTarget::ConstPtr &msg) {
     mavros_msgs::GlobalPositionTarget waypoint = *msg;
@@ -48,7 +50,6 @@ std_msgs::Bool missionComplete() {
     } else if (altitude_mode == "rel_alt") {  // current - rel && target - rel (add home alt)
         current_alt = altitude.relative;
         target_alt = current_target_global.z;
-
     } else {  // current - rel && target - rel
         current_alt = altitude.terrain;
         target_alt = current_target_global.z;
@@ -76,14 +77,12 @@ int main(int argc, char **argv) {
 
     signal(SIGINT, sigintHandler);
     signal(SIGTERM, sigintHandler);
-    std::string log_folder;
-
-    log_folder = createLogFolder();
+    std::string log_folder = createLogFolder(log_folder_base);
     Logger mission_logger(log_folder, "mission_checker");
     logger = &mission_logger;
     logger->logMessage("Logger initialized.");
 
-    // ros::Subscriber state_sub = nh_.subscribe<mavros_msgs::State>("mavros/state", 10, stateCallback);
+    ros::Subscriber state_sub = nh_.subscribe<mavros_msgs::State>("mavros/state", 10, stateCallback);
     ros::Subscriber gps_sub = nh_.subscribe<sensor_msgs::NavSatFix>("mavros/global_position/global", 10, gpsCallback);
     ros::Subscriber alt_sub = nh_.subscribe<mavros_msgs::Altitude>("mavros/altitude", 10, altCallback);
     ros::Publisher reached_target_pub = nh_.advertise<std_msgs::Bool>("reached_target", 10);
@@ -91,7 +90,7 @@ int main(int argc, char **argv) {
     ros::Rate rate(20.0);
 
     // Read tolerances from file
-    std::ifstream tol_file("/home/bota/catkin_ws_rm/src/quad_agent/path/tolerances.txt");
+    std::ifstream tol_file(tol_filename);
     if (tol_file.is_open()) {
         tol_file >> overall_tolerance >> xy_tolerance >> h_tolerance;
         tol_file.close();

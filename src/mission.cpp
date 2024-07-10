@@ -1,11 +1,14 @@
 #include "util.cpp"
 bool reached_target = false;
 bool current_gps_received = false;
-std::string altitude_mode = "rel_alt";  //"rel_alt" and "terrain_alt" "int"
 
-std::string filename = "/home/bota/catkin_ws_rm/src/quad_agent/path/waypoints.txt";  // File containing waypoints
+// std::string altitude_mode = "rel_alt";  //"rel_alt" and "terrain_alt" "int"
 
-mavros_msgs::Altitude altitude;
+// std::string waypoint_filename = "/home/bota/catkin_ws_rm/src/quad_agent/path/waypoints.txt";    // File containing waypoints
+// std::string img_metadata_filename = "/home/bota/catkin_ws_rm/src/quad_agent/survey/metadata/";  // File containing waypoints
+// std::string log_folder_base = "/home/bota/catkin_ws_rm/src/quad_agent/logs/";
+
+// mavros_msgs::Altitude altitude;
 
 void altCallback(const mavros_msgs::Altitude::ConstPtr &msg) {
     altitude = *msg;
@@ -37,8 +40,8 @@ void takePicture(ros::Publisher &take_picture_pub) {
 int main(int argc, char **argv) {
     ros::init(argc, argv, "mission_node");
     ros::NodeHandle nh;
-    // nh.param<std::string>("altitude_mode", altitude_mode, "int");
-    std::string log_folder = createLogFolder();
+
+    std::string log_folder = createLogFolder(log_folder_base);
 
     {
         Logger logger(log_folder, "mission_log");
@@ -53,8 +56,6 @@ int main(int argc, char **argv) {
 
         ros::ServiceClient arming_client = nh.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
         ros::ServiceClient set_mode_client = nh.serviceClient<mavros_msgs::SetMode>("mavros/set_mode");
-        ros::ServiceClient set_mav_frame_client = nh.serviceClient<mavros_msgs::SetMavFrame>("mavros/setpoint_position/mav_frame");
-
         ros::Rate rate(20.0);
 
         signal(SIGINT, sigintHandler);
@@ -76,6 +77,7 @@ int main(int argc, char **argv) {
             ros::spinOnce();
             rate.sleep();
         }
+
         ROS_INFO("GPS position received");
         logger.logMessage("GPS position received");
 
@@ -85,7 +87,7 @@ int main(int argc, char **argv) {
 
         if (altitude_mode == "terrain_alt") {  // above terrain alt
             home_alt = altitude.terrain;
-        } else if (altitude_mode == "rel_alt") {  // arel home
+        } else if (altitude_mode == "rel_alt") {  // rel to home/launch position
             home_alt = altitude.relative;
         } else {  // absolute
             home_alt = current_gps.pose.position.altitude;
@@ -96,12 +98,11 @@ int main(int argc, char **argv) {
                                     altitude_mode);
         ROS_INFO("HOME POSITION");
         ROS_INFO_STREAM(home_position);
-
         logger.logMessage("HOME POSITION: lat=" + std::to_string(home_position.latitude) +
                           ", lon=" + std::to_string(home_position.longitude) +
                           ", alt=" + std::to_string(home_position.altitude));
 
-        std::vector<GPSPosition> waypoints = readWaypointsFromFile(filename, current_gps.pose.position.altitude, altitude_mode);
+        std::vector<GPSPosition> waypoints = readWaypointsFromFile(waypoint_filename, current_gps.pose.position.altitude, altitude_mode);
 
         if (waypoints.empty()) {
             logger.logMessage("Couldn't read waypoints file");
@@ -127,6 +128,7 @@ int main(int argc, char **argv) {
         ROS_INFO("Drone is in OFFBOARD mode.");
         logger.logMessage("Drone is in OFFBOARD mode.");
 
+        // ARMING
         while (ros::ok() && !current_state.armed) {
             armDrone(arming_client);
             global_pos_pub.publish(home_position);
@@ -165,6 +167,7 @@ int main(int argc, char **argv) {
 
             // Take picture at waypoint
             takePicture(take_picture_pub);
+
             ROS_INFO("Taking picture");
             logger.logMessage("Taking picture");
 

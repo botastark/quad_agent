@@ -17,6 +17,9 @@ find_package(catkin REQUIRED COMPONENTS
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};/usr/share/cmake/geographiclib")
 find_package(GeographicLib REQUIRED)
 find_package(OpenCV REQUIRED)
+## Find Eigen3
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -180,6 +183,8 @@ add_executable(image_saver_node src/image_saver.cpp)
   util
  )
 target_link_libraries(image_saver_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+target_link_libraries(image_saver_node         ${GeographicLib_LIBRARIES})
+target_link_libraries(image_saver_node ${catkin_LIBRARIES} util)
 
 
 target_include_directories(mission_node PRIVATE ${GeographicLib_INCLUDE_DIRS})

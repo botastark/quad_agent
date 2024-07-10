@@ -1,5 +1,7 @@
+#include <unordered_map>
+
 #include "mission.h"
-// Need to ->amsl of gps altitude
+// Need to WGS84->amsl of gps altitude
 //"When controlling the FCU using global setpoints, you specify the altitude as
 // meters above mean sea level (AMSL). But when sensing the global position, the
 // altitude reported by ~global_position/global is specified as meters above the
@@ -19,8 +21,7 @@ double ellipsoid_height_to_amsl(double lat, double lon,
 }
 
 double haversine(double lat1, double lon1, double lat2, double lon2) {
-    // Constants
-    const double R = 6371000.0;  // Earth radius in meters
+    const double R = 6371000.0;
     // Convert latitude and longitude from degrees to radians
     double lat1_rad = lat1 * M_PI / 180.0;
     double lon1_rad = lon1 * M_PI / 180.0;
@@ -37,6 +38,7 @@ double haversine(double lat1, double lon1, double lat2, double lon2) {
     return distance;
 }
 
+// Function to read waypoints from a file
 // Function to read waypoints from a file and add current GPS altitude
 std::vector<GPSPosition> readWaypointsFromFile(const std::string &filename, double currentGpsAltitude, std::string altitude_mode) {
     std::vector<GPSPosition> waypoints;
@@ -210,16 +212,29 @@ class Logger {
     }
 };
 
-std::string getCurrentDateTime() {
-    auto now = std::chrono::system_clock::now();
-
-    std::time_t now_c = std::chrono::system_clock::to_time_t(now);
-    std::tm now_tm = *std::localtime(&now_c);
+std::string getCurrentDateTime(std::string format) {
+    std::time_t rawtime = std::time(nullptr);
+    struct std::tm *timeinfo = std::localtime(&rawtime);
+    std::stringstream ss;
 
     char buffer[80];
-    strftime(buffer, sizeof(buffer), "%H-%M", &now_tm);
-    std::stringstream ss;
-    ss << buffer;
+    if (format == "hm") {
+        strftime(buffer, sizeof(buffer), "%H-%M", timeinfo);
+        ss << buffer;
+    } else if (format == "ymd") {
+        strftime(buffer, sizeof(buffer), "%Y-%m-%d", timeinfo);
+        ss << buffer;
+    } else if (format == "hms-ms") {
+        strftime(buffer, sizeof(buffer), "%H-%M-%S", timeinfo);
+        auto now = std::chrono::system_clock::now();
+        auto ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+        auto fractional_seconds = now - ms;
+        ss << buffer << '-' << std::setfill('0') << std::setw(3) << fractional_seconds.count();
+    } else {
+        strftime(buffer, sizeof(buffer), "%Y-%m-%d", timeinfo);
+        ss << buffer;
+    }
+
     return ss.str();
 }
 
@@ -234,17 +249,11 @@ void ensureDirectoryExists(const std::string &path) {
     }
 }
 
-std::string createLogFolder() {
-    std::string folder_name = "/home/bota/catkin_ws_rm/src/quad_agent/logs/";
-
-    std::time_t rawtime = std::time(nullptr);
-    struct std::tm *timeinfo = std::localtime(&rawtime);
-    char buffer[80];
-    strftime(buffer, sizeof(buffer), "%Y-%m-%d", timeinfo);
-    folder_name += buffer;
+std::string createLogFolder(std::string folder_name) {
+    folder_name += getCurrentDateTime("ymd");
     ensureDirectoryExists(folder_name);
 
-    std::string folder_path = folder_name + "/" + getCurrentDateTime();
+    std::string folder_path = folder_name + "/" + getCurrentDateTime("hm");
     ensureDirectoryExists(folder_path);
 
     return folder_path;
@@ -254,4 +263,46 @@ std::string to_string_with_precision(double value, int precision = 14) {
     std::ostringstream oss;
     oss << std::fixed << std::setprecision(precision) << value;
     return oss.str();
+}
+
+struct ImageMetadata {
+    std::string timestamp;
+    std::string orientation;
+    std::string rpy_orientation;
+    std::string local_position;
+    std::string global_position;
+
+    void writeToTxt(const std::string &filename) const {
+        std::ofstream file(filename, std::ios_base::out | std::ios_base::app);  // Open in append mode
+        if (file.is_open()) {
+            file << "Timestamp: " << timestamp << std::endl;
+            file.flush();
+            file << "Global Position (lat, lon, alt): " << global_position << std::endl;
+            file << "Local Position (x, y, z): " << local_position << std::endl;
+            file.flush();
+            file << "Orientation (quaternion): " << orientation << std::endl;
+            file.flush();
+            file << "Orientation (roll-pitch-yaw): " << rpy_orientation << std::endl;
+            file.flush();
+
+            file << "---------------------\n";
+            file.flush();
+        } else {
+            std::cerr << "Failed to open file: " << filename << std::endl;
+        }
+    }
+};
+
+std::unordered_map<std::string, std::string> readConfigFile(const std::string &filename) {
+    std::unordered_map<std::string, std::string> config;
+    std::ifstream file(filename);
+    std::string line;
+    while (std::getline(file, line)) {
+        std::istringstream line_stream(line);
+        std::string key, value;
+        if (std::getline(line_stream, key, '=') && std::getline(line_stream, value)) {
+            config[key] = value;
+        }
+    }
+    return config;
 }

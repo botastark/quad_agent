@@ -1,3 +1,4 @@
+#include <cv_bridge/cv_bridge.h>
 #include <geographic_msgs/GeoPoseStamped.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Vector3.h>
@@ -7,7 +8,9 @@
 #include <mavros_msgs/SetMavFrame.h>
 #include <mavros_msgs/SetMode.h>
 #include <mavros_msgs/State.h>
+#include <nav_msgs/Odometry.h>
 #include <ros/ros.h>
+#include <sensor_msgs/Image.h>
 #include <sensor_msgs/LaserScan.h>
 #include <sensor_msgs/NavSatFix.h>
 #include <std_msgs/Bool.h>
@@ -16,8 +19,12 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 #include <GeographicLib/Geoid.hpp>
+#include <chrono>
 #include <cmath>
+#include <ctime>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -26,6 +33,12 @@
 #include <string>
 #include <vector>
 
+std::string altitude_mode = "rel_alt";                                                        //"rel_alt" and "terrain_alt" "int"
+std::string waypoint_filename = "/home/bota/catkin_ws_rm/src/quad_agent/path/waypoints.txt";  // File containing waypoints
+std::string log_folder_base = "/home/bota/catkin_ws_rm/src/quad_agent/logs/";
+std::string tol_filename = "/home/bota/catkin_ws_rm/src/quad_agent/path/tolerances.txt";
+
+mavros_msgs::Altitude altitude;
 geographic_msgs::GeoPoseStamped current_gps;
 mavros_msgs::State current_state;
 // Calculate waypoints local->global
