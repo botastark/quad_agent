@@ -3,10 +3,7 @@
     <arg name="fcu_url" default="udp://:14540@127.0.0.1:14557" />
     <arg name="gcs_url" default="" />
     <arg name="vehicle" default="iris" />
-    <!-- <arg name="altitude_mode" default="rel_alt" />  "rel_alt" and "terrain_alt",  "int" -->
-    <!-- default="$(find
-    px4)/Tools/simulation/gazebo-classic/sitl_gazebo-classic/models/iris_fpv_cam/iris_fpv_cam.sdf"
-    /> -->
+
     <arg name="sdf"
         default="$(find quad_agent)/models/iris_fpv_cam.sdf" />
     <!-- <arg name="world" default="$(find mavlink_sitl_gazebo)/worlds/mcmillan_airfield.world" /> -->

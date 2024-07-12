@@ -81,5 +81,15 @@
         "typeinfo": "cpp",
         "variant": "cpp",
         "bit": "cpp"
-    }
+    },
+    "cSpell.words": [
+        "amsl",
+        "asml",
+        "bota",
+        "Eigen",
+        "mavros",
+        "Odometry",
+        "OFFBOARD",
+        "setpoint"
+    ]
 }

@@ -1,0 +1,148 @@
+INFO [1.728000000]: FCU connected!
+INFO [1.728000000]: Waiting for GPS signal...
+INFO [3.780000000]: GPS position received
+INFO [3.780000000]: HOME POSITION: lat=41.737334, lon=12.513670, alt=5.125187
+INFO [8.780000000]: Sending a few point before starting
+INFO [8.816000000]: setting to OFFBOARD
+INFO [9.680000000]: Drone is in OFFBOARD mode.
+INFO [9.712000000]: arming
+INFO [10.644000000]: Drone is armed.
+INFO [10.644000000]: Navigating to waypoint: 41.737248, 12.513645, 5.000000
+INFO [32.728000000]: reached waypoint
+INFO [33.728000000]: Taking picture
+INFO [34.728000000]: Navigating to waypoint: 41.737226, 12.513647, 5.000000
+INFO [34.732000000]: reached waypoint
+INFO [35.780000000]: Taking picture
+INFO [36.780000000]: Navigating to waypoint: 41.737204, 12.513649, 5.000000
+INFO [38.828000000]: reached waypoint
+INFO [39.828000000]: Taking picture
+INFO [40.828000000]: Navigating to waypoint: 41.737182, 12.513651, 5.000000
+INFO [43.228000000]: reached waypoint
+INFO [44.228000000]: Taking picture
+INFO [45.228000000]: Navigating to waypoint: 41.737160, 12.513653, 5.000000
+INFO [47.628000000]: reached waypoint
+INFO [48.628000000]: Taking picture
+INFO [49.628000000]: Navigating to waypoint: 41.737138, 12.513655, 5.000000
+INFO [52.080000000]: reached waypoint
+INFO [53.080000000]: Taking picture
+INFO [54.080000000]: Navigating to waypoint: 41.737116, 12.513657, 5.000000
+INFO [56.528000000]: reached waypoint
+INFO [57.528000000]: Taking picture
+INFO [58.528000000]: Navigating to waypoint: 41.737095, 12.513659, 5.000000
+INFO [60.980000000]: reached waypoint
+INFO [61.980000000]: Taking picture
+INFO [62.980000000]: Navigating to waypoint: 41.737076, 12.513700, 5.000000
+INFO [65.428000000]: reached waypoint
+INFO [66.428000000]: Taking picture
+INFO [67.428000000]: Navigating to waypoint: 41.737098, 12.513698, 5.000000
+INFO [72.180000000]: reached waypoint
+INFO [73.180000000]: Taking picture
+INFO [74.180000000]: Navigating to waypoint: 41.737119, 12.513696, 5.000000
+INFO [74.180000000]: reached waypoint
+INFO [75.180000000]: Taking picture
+INFO [76.180000000]: Navigating to waypoint: 41.737141, 12.513694, 5.000000
+INFO [78.228000000]: reached waypoint
+INFO [79.228000000]: Taking picture
+INFO [80.228000000]: Navigating to waypoint: 41.737163, 12.513692, 5.000000
+INFO [82.628000000]: reached waypoint
+INFO [83.628000000]: Taking picture
+INFO [84.628000000]: Navigating to waypoint: 41.737185, 12.513690, 5.000000
+INFO [87.128000000]: reached waypoint
+INFO [88.128000000]: Taking picture
+INFO [89.128000000]: Navigating to waypoint: 41.737207, 12.513688, 5.000000
+INFO [91.628000000]: reached waypoint
+INFO [92.628000000]: Taking picture
+INFO [93.628000000]: Navigating to waypoint: 41.737229, 12.513686, 5.000000
+INFO [96.180000000]: reached waypoint
+INFO [97.180000000]: Taking picture
+INFO [98.180000000]: Navigating to waypoint: 41.737251, 12.513684, 5.000000
+INFO [100.528000000]: reached waypoint
+INFO [101.528000000]: Taking picture
+INFO [102.528000000]: Navigating to waypoint: 41.737268, 12.513682, 5.000000
+INFO [104.828000000]: reached waypoint
+INFO [105.828000000]: Taking picture
+INFO [106.832000000]: Navigating to waypoint: 41.737289, 12.513720, 5.000000
+INFO [109.228000000]: reached waypoint
+INFO [110.228000000]: Taking picture
+INFO [111.228000000]: Navigating to waypoint: 41.737267, 12.513722, 5.000000
+INFO [113.628000000]: reached waypoint
+INFO [114.628000000]: Taking picture
+INFO [115.628000000]: Navigating to waypoint: 41.737245, 12.513724, 5.000000
+INFO [118.080000000]: reached waypoint
+INFO [119.080000000]: Taking picture
+INFO [120.080000000]: Navigating to waypoint: 41.737223, 12.513726, 5.000000
+INFO [122.528000000]: reached waypoint
+INFO [123.528000000]: Taking picture
+INFO [124.528000000]: Navigating to waypoint: 41.737201, 12.513728, 5.000000
+INFO [126.928000000]: reached waypoint
+INFO [127.932000000]: Taking picture
+INFO [128.980000000]: Navigating to waypoint: 41.737179, 12.513730, 5.000000
+INFO [131.428000000]: reached waypoint
+INFO [132.428000000]: Taking picture
+INFO [133.428000000]: Navigating to waypoint: 41.737157, 12.513732, 5.000000
+INFO [135.928000000]: reached waypoint
+INFO [136.928000000]: Taking picture
+INFO [137.928000000]: Navigating to waypoint: 41.737135, 12.513734, 5.000000
+INFO [140.380000000]: reached waypoint
+INFO [141.380000000]: Taking picture
+INFO [142.380000000]: Navigating to waypoint: 41.737113, 12.513736, 5.000000
+INFO [144.828000000]: reached waypoint
+INFO [145.828000000]: Taking picture
+INFO [146.828000000]: Navigating to waypoint: 41.737092, 12.513738, 5.000000
+INFO [149.228000000]: reached waypoint
+INFO [150.228000000]: Taking picture
+INFO [151.228000000]: Navigating to waypoint: 41.737081, 12.513739, 5.000000
+INFO [153.580000000]: reached waypoint
+INFO [154.580000000]: Taking picture
+INFO [155.580000000]: Navigating to waypoint: 41.737085, 12.513778, 5.000000
+INFO [158.028000000]: reached waypoint
+INFO [159.028000000]: Taking picture
+INFO [160.028000000]: Navigating to waypoint: 41.737107, 12.513776, 5.000000
+INFO [186.880000000]: reached waypoint
+INFO [187.880000000]: Taking picture
+INFO [188.880000000]: Navigating to waypoint: 41.737129, 12.513774, 5.000000
+INFO [188.880000000]: reached waypoint
+INFO [189.880000000]: Taking picture
+INFO [190.880000000]: Navigating to waypoint: 41.737151, 12.513772, 5.000000
+INFO [193.028000000]: reached waypoint
+INFO [194.028000000]: Taking picture
+INFO [195.028000000]: Navigating to waypoint: 41.737173, 12.513770, 5.000000
+INFO [200.228000000]: reached waypoint
+INFO [201.228000000]: Taking picture
+INFO [202.228000000]: Navigating to waypoint: 41.737195, 12.513768, 5.000000
+INFO [202.228000000]: reached waypoint
+INFO [203.228000000]: Taking picture
+INFO [204.228000000]: Navigating to waypoint: 41.737217, 12.513766, 5.000000
+INFO [209.428000000]: reached waypoint
+INFO [210.428000000]: Taking picture
+INFO [211.428000000]: Navigating to waypoint: 41.737239, 12.513764, 5.000000
+INFO [211.428000000]: reached waypoint
+INFO [212.428000000]: Taking picture
+INFO [213.428000000]: Navigating to waypoint: 41.737261, 12.513761, 5.000000
+INFO [215.528000000]: reached waypoint
+INFO [216.528000000]: Taking picture
+INFO [217.528000000]: Navigating to waypoint: 41.737283, 12.513759, 5.000000
+INFO [219.980000000]: reached waypoint
+INFO [220.980000000]: Taking picture
+INFO [221.980000000]: Navigating to waypoint: 41.737304, 12.513757, 5.000000
+INFO [224.480000000]: reached waypoint
+INFO [225.480000000]: Taking picture
+INFO [226.480000000]: Navigating to waypoint: 41.737309, 12.513757, 5.000000
+INFO [228.580000000]: reached waypoint
+INFO [229.580000000]: Taking picture
+INFO [230.580000000]: Navigating to waypoint: 41.737249, 12.513802, 5.000000
+INFO [230.580000000]: reached waypoint
+INFO [231.580000000]: Taking picture
+INFO [232.580000000]: Navigating to waypoint: 41.737227, 12.513804, 5.000000
+INFO [236.628000000]: reached waypoint
+INFO [237.628000000]: Taking picture
+INFO [238.628000000]: Navigating to waypoint: 41.737205, 12.513806, 5.000000
+INFO [241.032000000]: reached waypoint
+INFO [242.080000000]: Taking picture
+INFO [243.080000000]: Navigating to waypoint: 41.737184, 12.513808, 5.000000
+INFO [299.328000000]: reached waypoint
+INFO [300.328000000]: Taking picture
+INFO [301.328000000]: Navigating to waypoint: 41.737162, 12.513810, 5.000000
+INFO [301.328000000]: reached waypoint
+INFO [302.328000000]: Taking picture
+INFO [303.328000000]: Navigating to waypoint: 41.737140, 12.513812, 5.000000

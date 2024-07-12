@@ -42,7 +42,6 @@ int main(int argc, char **argv) {
     ros::NodeHandle nh;
 
     std::string log_folder = createLogFolder(log_folder_base);
-
     {
         Logger logger(log_folder, "mission_log");
 
@@ -52,6 +51,7 @@ int main(int argc, char **argv) {
         ros::Subscriber alt_sub = nh.subscribe<mavros_msgs::Altitude>("mavros/altitude", 10, altCallback);
 
         ros::Publisher global_pos_pub = nh.advertise<mavros_msgs::GlobalPositionTarget>("/mavros/setpoint_raw/global", 10);
+        ros::Publisher target_waypoints_pub = nh.advertise<mavros_msgs::GlobalPositionTarget>("/target_setpoint_global", 10);
         ros::Publisher take_picture_pub = nh.advertise<std_msgs::Bool>("take_picture", 10);
 
         ros::ServiceClient arming_client = nh.serviceClient<mavros_msgs::CommandBool>("mavros/cmd/arming");
@@ -92,10 +92,16 @@ int main(int argc, char **argv) {
         } else {  // absolute
             home_alt = current_gps.pose.position.altitude;
         }
+        // TODO: launch position setting
+        launch_position.latitude = current_gps.pose.position.latitude;
+        launch_position.longitude = current_gps.pose.position.longitude;
+        launch_position.altitude = 0;
+
         home_position = create_pose(current_gps.pose.position.latitude,
                                     current_gps.pose.position.longitude,
                                     home_alt + 5.0,
                                     altitude_mode);
+
         ROS_INFO("HOME POSITION");
         ROS_INFO_STREAM(home_position);
         logger.logMessage("HOME POSITION: lat=" + std::to_string(home_position.latitude) +
@@ -139,18 +145,78 @@ int main(int argc, char **argv) {
         ROS_INFO("Drone is armed.");
         logger.logMessage("Drone is armed.");
         ros::Time start_time;
+        // TODO
+        GPSPosition start = launch_position;
+        GPSPosition end;
+        ros::Time waypoint_start;
+        double current_time;
 
         // Navigate to each waypoint
-        for (const auto &waypoint : waypoints) {
+        for (size_t i = 0; i < waypoints.size(); ++i) {
+            GPSPosition waypoint = waypoints[i];
             std::string waypoint_log = "Navigating to waypoint: " + std::to_string(waypoint.latitude) + ", " + std::to_string(waypoint.longitude) + ", " + std::to_string(waypoint.altitude);
             logger.logMessage(waypoint_log);
             ROS_INFO_STREAM(waypoint_log);
 
-            goal_position = create_pose(waypoint.latitude, waypoint.longitude, waypoint.altitude, altitude_mode);
+            // TODO:
+            if (i == 0) {
+                start = launch_position;
+            } else {
+                start = waypoints[i - 1];
+            }
+            end = waypoint;
+
+            waypoint_start = ros::Time::now();
+            ROS_INFO_STREAM("waypoint_start t " << waypoint_start);
+
+            current_time = (ros::Time::now() - waypoint_start).toSec();
+            ROS_INFO_STREAM("current_time t " << current_time);
+            SetPoint target_curr = generateTrajectory(start, end, current_time);
+            mavros_msgs::GlobalPositionTarget goal_position = create_pose_traj(target_curr, altitude_mode);
             global_pos_pub.publish(goal_position);
+            logger.logMessage("current_time t " + to_string(current_time));
+            logger.logMessage("target t " + to_string(target_curr.t));
+            logger.logMessage("target pos " + to_string_with_precision(target_curr.position_gps.latitude) + " " + to_string_with_precision(target_curr.position_gps.longitude) + " " + to_string_with_precision(target_curr.position_gps.altitude));
+            logger.logMessage("target vel " + to_string(target_curr.velocity.x) + " " + to_string(target_curr.velocity.y) + " " + to_string(target_curr.velocity.z));
+            logger.logMessage("target acc " + to_string(target_curr.acceleration.x) + " " + to_string(target_curr.acceleration.y) + " " + to_string(target_curr.acceleration.z));
+            logger.logMessage("_____________________");
+            ROS_INFO_STREAM("current_time t " << current_time);
+            ROS_INFO_STREAM("target t " << target_curr.t);
+            ROS_INFO_STREAM("target pos " << to_string_with_precision(target_curr.position_gps.latitude) << " " << to_string_with_precision(target_curr.position_gps.longitude) << " " << to_string_with_precision(target_curr.position_gps.altitude));
+            ROS_INFO_STREAM("target vel " << target_curr.velocity);
+            ROS_INFO_STREAM("target acc " << target_curr.acceleration);
+            ROS_INFO("_____________________");
+
+            // goal_position = create_pose(waypoint.latitude, waypoint.longitude, waypoint.altitude, altitude_mode);
+
+            mavros_msgs::GlobalPositionTarget gps_goal_position = create_pose(waypoint.latitude, waypoint.longitude, waypoint.altitude, altitude_mode);
+            target_waypoints_pub.publish(gps_goal_position);
+            // global_pos_pub.publish(goal_position);
+
             // Wait for waypoint reached
             while (ros::ok() && !reached_target) {
+                mavros_msgs::GlobalPositionTarget gps_goal_position = create_pose(waypoint.latitude, waypoint.longitude, waypoint.altitude, altitude_mode);
+                target_waypoints_pub.publish(gps_goal_position);
+
+                current_time = (ros::Time::now() - waypoint_start).toSec();
+                SetPoint target_curr = generateTrajectory(start, end, current_time);
+                mavros_msgs::GlobalPositionTarget goal_position = create_pose_traj(target_curr, altitude_mode);
                 global_pos_pub.publish(goal_position);
+                logger.logMessage("current_time t " + to_string(current_time));
+                logger.logMessage("current_time t " + to_string(current_time));
+                logger.logMessage("target t " + to_string(target_curr.t));
+                logger.logMessage("target pos " + to_string_with_precision(target_curr.position_gps.latitude) + " " + to_string_with_precision(target_curr.position_gps.longitude) + " " + to_string_with_precision(target_curr.position_gps.altitude));
+                logger.logMessage("target vel " + to_string(target_curr.velocity.x) + " " + to_string(target_curr.velocity.y) + " " + to_string(target_curr.velocity.z));
+                logger.logMessage("target acc " + to_string(target_curr.acceleration.x) + " " + to_string(target_curr.acceleration.y) + " " + to_string(target_curr.acceleration.z));
+                logger.logMessage("_____________________");
+
+                ROS_INFO_STREAM("current_time t " << current_time);
+                ROS_INFO_STREAM("target t " << target_curr.t);
+                ROS_INFO_STREAM("target pos " << to_string_with_precision(target_curr.position_gps.latitude) << " " << to_string_with_precision(target_curr.position_gps.longitude) << " " << to_string_with_precision(target_curr.position_gps.altitude));
+                ROS_INFO_STREAM("target vel " << target_curr.velocity);
+                ROS_INFO_STREAM("target acc " << target_curr.acceleration);
+                ROS_INFO("_____________________");
+                // global_pos_pub.publish(goal_position);
                 ros::spinOnce();
                 rate.sleep();
             }
@@ -161,6 +227,7 @@ int main(int argc, char **argv) {
             ros::Time start_time = ros::Time::now();
             while (ros::ok() && (ros::Time::now() - start_time).toSec() < 1.0) {
                 global_pos_pub.publish(goal_position);
+                target_waypoints_pub.publish(gps_goal_position);
                 ros::spinOnce();
                 rate.sleep();
             }
@@ -174,6 +241,7 @@ int main(int argc, char **argv) {
             start_time = ros::Time::now();
             while (ros::ok() && (ros::Time::now() - start_time).toSec() < 1.0) {
                 global_pos_pub.publish(goal_position);
+                target_waypoints_pub.publish(gps_goal_position);
                 ros::spinOnce();
                 rate.sleep();
             }

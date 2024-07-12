@@ -86,7 +86,9 @@ int main(int argc, char **argv) {
     ros::Subscriber gps_sub = nh_.subscribe<sensor_msgs::NavSatFix>("mavros/global_position/global", 10, gpsCallback);
     ros::Subscriber alt_sub = nh_.subscribe<mavros_msgs::Altitude>("mavros/altitude", 10, altCallback);
     ros::Publisher reached_target_pub = nh_.advertise<std_msgs::Bool>("reached_target", 10);
-    ros::Subscriber target_pos_sub = nh_.subscribe<mavros_msgs::GlobalPositionTarget>("mavros/setpoint_raw/global", 10, targetCallback);
+    // ros::Subscriber target_pos_sub = nh_.subscribe<mavros_msgs::GlobalPositionTarget>("mavros/setpoint_raw/global", 10, targetCallback);
+    ros::Subscriber target_pos_sub = nh_.subscribe<mavros_msgs::GlobalPositionTarget>("/target_setpoint_global", 10, targetCallback);
+
     ros::Rate rate(20.0);
 
     // Read tolerances from file

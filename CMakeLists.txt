@@ -142,6 +142,8 @@ include_directories(
 
 # add_executable(hover_node src/hover.cpp )
 add_executable(mission_node src/mission.cpp)
+add_executable(traj_gen_node src/traj_gen.cpp)
+
 add_executable(missionchecker_node src/mission_complete.cpp)
 add_library(util src/util.cpp)
 add_executable(image_saver_node src/image_saver.cpp)
@@ -171,29 +173,25 @@ add_executable(image_saver_node src/image_saver.cpp)
 #   trajectory_generator
 
 #  )
+target_link_libraries(traj_gen_node ${catkin_LIBRARIES} util ${GeographicLib_LIBRARIES})
 
- target_link_libraries(
-  mission_node
-  ${catkin_LIBRARIES}
-  util
- )
- target_link_libraries(
-  missionchecker_node
-  ${catkin_LIBRARIES}
-  util
- )
-target_link_libraries(image_saver_node ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-target_link_libraries(image_saver_node         ${GeographicLib_LIBRARIES})
-target_link_libraries(image_saver_node ${catkin_LIBRARIES} util)
-
-
+target_link_libraries(mission_node ${catkin_LIBRARIES} ${GeographicLib_LIBRARIES} util)
 target_include_directories(mission_node PRIVATE ${GeographicLib_INCLUDE_DIRS})
 target_compile_definitions(mission_node PRIVATE ${GeographicLib_DEFINITIONS})
-target_link_libraries     (mission_node         ${GeographicLib_LIBRARIES})
 
+
+target_link_libraries(missionchecker_node ${catkin_LIBRARIES}  ${GeographicLib_LIBRARIES} util)
 target_include_directories(missionchecker_node PRIVATE ${GeographicLib_INCLUDE_DIRS})
 target_compile_definitions(missionchecker_node PRIVATE ${GeographicLib_DEFINITIONS})
-target_link_libraries     (missionchecker_node         ${GeographicLib_LIBRARIES})
+
+
+target_link_libraries(image_saver_node ${catkin_LIBRARIES} util ${OpenCV_LIBRARIES} ${GeographicLib_LIBRARIES})
+
+
+
+
+
+
 
 #############
 ## Install ##

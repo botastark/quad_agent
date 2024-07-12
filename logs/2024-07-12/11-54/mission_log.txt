@@ -1,0 +1,34 @@
+INFO [1.704000000]: FCU connected!
+INFO [1.704000000]: Waiting for GPS signal...
+INFO [3.804000000]: GPS position received
+INFO [3.804000000]: HOME POSITION: lat=41.737334, lon=12.513670, alt=5.123576
+INFO [8.804000000]: Sending a few point before starting
+INFO [8.812000000]: setting to OFFBOARD
+INFO [9.656000000]: Drone is in OFFBOARD mode.
+INFO [9.676000000]: arming
+INFO [10.656000000]: Drone is armed.
+INFO [10.656000000]: Navigating to waypoint: 41.737248, 12.513645, 5.000000
+INFO [10.756000000]: reached waypoint
+INFO [11.756000000]: Taking picture
+INFO [12.756000000]: Navigating to waypoint: 41.737226, 12.513647, 5.000000
+INFO [12.756000000]: reached waypoint
+INFO [13.756000000]: Taking picture
+INFO [14.756000000]: Navigating to waypoint: 41.737204, 12.513649, 5.000000
+INFO [70.104000000]: reached waypoint
+INFO [71.104000000]: Taking picture
+INFO [72.104000000]: Navigating to waypoint: 41.737182, 12.513651, 5.000000
+INFO [127.356000000]: reached waypoint
+INFO [128.356000000]: Taking picture
+INFO [129.356000000]: Navigating to waypoint: 41.737160, 12.513653, 5.000000
+INFO [129.356000000]: reached waypoint
+INFO [130.356000000]: Taking picture
+INFO [131.356000000]: Navigating to waypoint: 41.737138, 12.513655, 5.000000
+INFO [131.356000000]: reached waypoint
+INFO [132.356000000]: Taking picture
+INFO [133.356000000]: Navigating to waypoint: 41.737116, 12.513657, 5.000000
+INFO [188.556000000]: reached waypoint
+INFO [189.556000000]: Taking picture
+INFO [190.556000000]: Navigating to waypoint: 41.737095, 12.513659, 5.000000
+INFO [190.556000000]: reached waypoint
+INFO [191.556000000]: Taking picture
+INFO [192.556000000]: Navigating to waypoint: 41.737076, 12.513700, 5.000000

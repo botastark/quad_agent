@@ -1,0 +1,5 @@
+INFO [0.000000000]: Logger initialized.
+INFO [0.000000000]: Tolerances used: overall_tolerance=0.200000, xy_tolerance=0.110000, h_tolerance=0.200000
+INFO [0.000000000]: Altitude: Relative to home position
+INFO [0.000000000]: gps | target
+INFO [0.000000000]: Waiting for GPS signal...

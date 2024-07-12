@@ -38,7 +38,6 @@ double haversine(double lat1, double lon1, double lat2, double lon2) {
     return distance;
 }
 
-// Function to read waypoints from a file
 // Function to read waypoints from a file and add current GPS altitude
 std::vector<GPSPosition> readWaypointsFromFile(const std::string &filename, double currentGpsAltitude, std::string altitude_mode) {
     std::vector<GPSPosition> waypoints;
@@ -305,4 +304,206 @@ std::unordered_map<std::string, std::string> readConfigFile(const std::string &f
         }
     }
     return config;
+}
+#include <GeographicLib/Geocentric.hpp>
+#include <GeographicLib/LocalCartesian.hpp>
+
+using namespace GeographicLib;
+using namespace std;
+
+struct SetPoint {
+    GPSPosition position_gps;
+    // GPSPosition position_end;
+    // geometry_msgs::Vector3 x_s;
+    // geometry_msgs::Vector3 x_f;
+    geometry_msgs::Vector3 position;
+    geometry_msgs::Vector3 velocity;      // in meters/s
+    geometry_msgs::Vector3 acceleration;  // in meters/s
+    double yaw;                           // in rad
+    double t;
+};
+
+GPSPosition launch_position;
+// = {41.73724768996549, 12.513644919120955, 5};
+
+Geocentric earth(Constants::WGS84_a(), Constants::WGS84_f());
+
+geometry_msgs::Vector3 convertGPS2ECEF(GPSPosition positionGPS) {
+    geometry_msgs::Vector3 position_ECEF;
+    LocalCartesian proj(launch_position.latitude, launch_position.longitude, launch_position.altitude, earth);
+    proj.Forward(positionGPS.latitude, positionGPS.longitude, positionGPS.altitude, position_ECEF.x, position_ECEF.y, position_ECEF.z);
+    return position_ECEF;
+}
+GPSPosition convertECEF2GPS(geometry_msgs::Vector3 position_ECEF) {
+    GPSPosition positionGPS;
+
+    LocalCartesian proj(launch_position.latitude, launch_position.longitude, launch_position.altitude, earth);
+    proj.Reverse(position_ECEF.x, position_ECEF.y, position_ECEF.z, positionGPS.latitude, positionGPS.longitude, positionGPS.altitude);
+    // proj.Reverse(x, y, z, lat, lon, h);
+    return positionGPS;
+}
+
+geometry_msgs::Vector3 convertGPS2NED(GPSPosition positionGPS, geometry_msgs::Vector3 position_origin = convertGPS2ECEF(launch_position)) {
+    geometry_msgs::Vector3 position_NED, position_ECEF;
+    position_ECEF = convertGPS2ECEF(positionGPS);
+    // position_NED.x = position_ECEF.x - position_origin.x;
+    // position_NED.y = position_ECEF.y - position_origin.y;
+    // position_NED.z = position_ECEF.z - position_origin.z;
+
+    // Calculate the differences in ECEF coordinates
+    double dx = position_ECEF.x - position_origin.x;
+    double dy = position_ECEF.y - position_origin.y;
+    double dz = position_ECEF.z - position_origin.z;
+
+    // Compute the rotation matrix components
+    double sin_lat = sin(launch_position.latitude * M_PI / 180.0);
+    double cos_lat = cos(launch_position.latitude * M_PI / 180.0);
+    double sin_lon = sin(launch_position.longitude * M_PI / 180.0);
+    double cos_lon = cos(launch_position.longitude * M_PI / 180.0);
+
+    // Rotation matrix from ECEF to NED
+    double R[3][3] = {
+        {-sin_lat * cos_lon, -sin_lat * sin_lon, cos_lat},
+        {-sin_lon, cos_lon, 0},
+        {-cos_lat * cos_lon, -cos_lat * sin_lon, -sin_lat}};
+
+    // Apply the rotation matrix to get NED coordinates
+    position_NED.x = R[0][0] * dx + R[0][1] * dy + R[0][2] * dz;
+    position_NED.y = R[1][0] * dx + R[1][1] * dy + R[1][2] * dz;
+    position_NED.z = R[2][0] * dx + R[2][1] * dy + R[2][2] * dz;
+
+    return position_NED;
+}
+
+// Function to convert NED position back to GPS
+GPSPosition convertNED2GPS(const geometry_msgs::Vector3 &position_NED, geometry_msgs::Vector3 position_origin = convertGPS2ECEF(launch_position)) {
+    GPSPosition positionGPS;
+
+    // Compute the rotation matrix components
+    double sin_lat = sin(launch_position.latitude * M_PI / 180.0);
+    double cos_lat = cos(launch_position.latitude * M_PI / 180.0);
+    double sin_lon = sin(launch_position.longitude * M_PI / 180.0);
+    double cos_lon = cos(launch_position.longitude * M_PI / 180.0);
+
+    // Rotation matrix from NED to ECEF (transpose of ECEF to NED)
+    double R[3][3] = {
+        {-sin_lat * cos_lon, -sin_lon, -cos_lat * cos_lon},
+        {-sin_lat * sin_lon, cos_lon, -cos_lat * sin_lon},
+        {cos_lat, 0, -sin_lat}};
+
+    // Apply the rotation matrix to get ECEF coordinates
+    double dx = R[0][0] * position_NED.x + R[0][1] * position_NED.y + R[0][2] * position_NED.z;
+    double dy = R[1][0] * position_NED.x + R[1][1] * position_NED.y + R[1][2] * position_NED.z;
+    double dz = R[2][0] * position_NED.x + R[2][1] * position_NED.y + R[2][2] * position_NED.z;
+
+    // Convert ECEF coordinates to GPS
+
+    // Calculate ECEF coordinates from NED
+    geometry_msgs::Vector3 position_ECEF;
+    // Calculate the ECEF coordinates
+    position_ECEF.x = position_origin.x + dx;
+    position_ECEF.y = position_origin.y + dy;
+    position_ECEF.z = position_origin.z + dz;
+    // position_ECEF.x = position_origin.x + position_NED.x;
+    // position_ECEF.y = position_origin.y + position_NED.y;
+    // position_ECEF.z = position_origin.z + position_NED.z;  // NED is negative down
+    positionGPS = convertECEF2GPS(position_ECEF);
+    return positionGPS;
+}
+
+void getArcLength(double t, double L, double &sigma, double &dsigma, double &ddsigma) {
+    // trapezoid velocity timing
+    double Ts = v_max / a_max;
+    double T = (L * a_max + v_max * v_max) / a_max / v_max;
+    if (t >= 0 && t < Ts) {
+        sigma = a_max * t * t / 2;
+        dsigma = a_max * t;
+        ddsigma = a_max;
+    } else if (t > Ts && t < (T - Ts)) {
+        sigma = v_max * t - v_max * v_max / 2 / a_max;
+        dsigma = v_max;
+        ddsigma = 0;
+    } else if (t > (T - Ts) && t < T) {
+        sigma = -a_max * (t - T) * (t - T) / 2 + v_max * t - v_max * v_max / a_max;
+        dsigma = -a_max * t;
+        ddsigma = -a_max;
+    } else {
+        sigma = L;
+        dsigma = 0;
+        ddsigma = 0;
+    }
+}
+void calculateTrajectory_axis(double r0, double rf, double L, double t, double &position, double &velocity, double &acceleration) {
+    double sigma, dsigma, ddsigma;
+    getArcLength(t, L, sigma, dsigma, ddsigma);
+    position = r0 + 3 * (rf - r0) / L / L * sigma * sigma - 2 * (rf - r0) / L / L / L * sigma * sigma * sigma;
+    velocity = 6 / L / L * (rf - r0) * (sigma * dsigma - sigma * sigma * dsigma);
+    acceleration = 6 / L / L * (rf - r0) * (dsigma * dsigma + sigma * ddsigma - 2 * sigma * dsigma - sigma * sigma * ddsigma);
+}
+
+double calculateDistance(geometry_msgs::Vector3 pos_s, geometry_msgs::Vector3 pos_f) {
+    geometry_msgs::Vector3 distances;
+    distances.x = std::abs(pos_f.x - pos_s.x);  // Absolute distance in North (x)
+    distances.y = std::abs(pos_f.y - pos_s.y);  // Absolute distance in East (y)
+    distances.z = std::abs(pos_f.z - pos_s.z);
+    double eucledian_dist = distances.x * distances.x + distances.y * distances.y + distances.z * distances.z;
+    eucledian_dist = std::sqrt(eucledian_dist);
+    return eucledian_dist;
+}
+
+SetPoint generateTrajectory(GPSPosition start, GPSPosition end, double time) {
+    // Convert GPS coordinates to local Cartesian coordinates
+    geometry_msgs::Vector3 pos_s = convertGPS2NED(start);
+    geometry_msgs::Vector3 pos_f = convertGPS2NED(end);
+
+    SetPoint out;
+    out.t = time;
+
+    double L = calculateDistance(pos_s, pos_f);
+
+    ROS_INFO_STREAM("distance L: " << L);
+
+    calculateTrajectory_axis(pos_s.x, pos_f.x, L, time, out.position.x, out.velocity.x, out.acceleration.x);
+    calculateTrajectory_axis(pos_s.y, pos_f.y, L, time, out.position.y, out.velocity.y, out.acceleration.y);
+    calculateTrajectory_axis(pos_s.z, pos_f.z, L, time, out.position.z, out.velocity.z, out.acceleration.z);
+    out.yaw = std::atan2(out.velocity.y, out.velocity.x);
+    out.position_gps = convertNED2GPS(out.position);
+    return out;
+}
+
+mavros_msgs::GlobalPositionTarget create_pose_traj(SetPoint target, std::string altitude_mode) {
+    mavros_msgs::GlobalPositionTarget setpoint;
+
+    if (altitude_mode == "int") {
+        setpoint.coordinate_frame = mavros_msgs::GlobalPositionTarget::FRAME_GLOBAL_INT;
+    } else if (altitude_mode == "rel_alt") {
+        setpoint.coordinate_frame = mavros_msgs::GlobalPositionTarget::FRAME_GLOBAL_REL_ALT;
+    } else if (altitude_mode == "terrain_alt") {
+        setpoint.coordinate_frame = mavros_msgs::GlobalPositionTarget::FRAME_GLOBAL_TERRAIN_ALT;
+    } else {
+        setpoint.coordinate_frame = mavros_msgs::GlobalPositionTarget::FRAME_GLOBAL_INT;
+    }
+
+    setpoint.latitude = target.position_gps.latitude;
+    setpoint.longitude = target.position_gps.longitude;
+    setpoint.altitude = target.position_gps.altitude;
+    setpoint.velocity.x = target.velocity.x;
+    setpoint.velocity.y = target.velocity.y;
+    setpoint.velocity.z = target.velocity.z;
+    setpoint.acceleration_or_force.x = target.acceleration.x;
+    setpoint.acceleration_or_force.y = target.acceleration.y;
+    setpoint.acceleration_or_force.z = target.acceleration.z;
+    // setpoint.yaw = target.yaw;
+
+    setpoint.type_mask =
+        // mavros_msgs::GlobalPositionTarget::IGNORE_VX |
+        // mavros_msgs::GlobalPositionTarget::IGNORE_VY |
+        // mavros_msgs::GlobalPositionTarget::IGNORE_VZ |
+        // mavros_msgs::GlobalPositionTarget::IGNORE_AFX |
+        // mavros_msgs::GlobalPositionTarget::IGNORE_AFY |
+        // mavros_msgs::GlobalPositionTarget::IGNORE_AFZ |
+        // mavros_msgs::GlobalPositionTarget::FORCE |
+        mavros_msgs::GlobalPositionTarget::IGNORE_YAW_RATE |
+        mavros_msgs::GlobalPositionTarget::IGNORE_YAW;
+    return setpoint;
 }

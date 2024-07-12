@@ -33,6 +33,9 @@
 #include <string>
 #include <vector>
 
+#include "geometry_msgs/Vector3.h"
+double v_max = 3;
+double a_max = 3;
 std::string altitude_mode = "rel_alt";                                                        //"rel_alt" and "terrain_alt" "int"
 std::string waypoint_filename = "/home/bota/catkin_ws_rm/src/quad_agent/path/waypoints.txt";  // File containing waypoints
 std::string log_folder_base = "/home/bota/catkin_ws_rm/src/quad_agent/logs/";

@@ -1,0 +1,8 @@
+INFO [1.720000000]: FCU connected!
+INFO [1.720000000]: Waiting for GPS signal...
+INFO [14.420000000]: GPS position received
+INFO [14.420000000]: HOME POSITION: lat=41.737329, lon=12.513668, alt=3.783586
+INFO [19.420000000]: Sending a few point before starting
+INFO [19.428000000]: setting to OFFBOARD
+INFO [19.768000000]: Drone is in OFFBOARD mode.
+INFO [19.796000000]: arming

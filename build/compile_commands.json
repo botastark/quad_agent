@@ -1,25 +1,31 @@
 [
 {
   "directory": "/home/bota/catkin_ws_rm/src/quad_agent/build",
-  "command": "/usr/bin/c++  -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\\\"quad_agent\\\" -I../include -I/home/bota/catkin_ws_rm/devel/.private/mavros_msgs/include -I/home/bota/catkin_ws_rm/src/mavros/mavros_msgs/include -I/opt/ros/noetic/include -I/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -isystem /usr/include/opencv4  -g   -o CMakeFiles/image_saver_node.dir/src/image_saver.cpp.o -c /home/bota/catkin_ws_rm/src/quad_agent/src/image_saver.cpp",
+  "command": "/usr/bin/c++  -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\\\"quad_agent\\\" -I/usr/include/eigen3 -I../include -I/home/bota/catkin_ws_rm/devel/.private/mavros_msgs/include -I/home/bota/catkin_ws_rm/src/mavros/mavros_msgs/include -I/opt/ros/noetic/include -I/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -isystem /usr/include/opencv4  -g   -o CMakeFiles/image_saver_node.dir/src/image_saver.cpp.o -c /home/bota/catkin_ws_rm/src/quad_agent/src/image_saver.cpp",
   "file": "/home/bota/catkin_ws_rm/src/quad_agent/src/image_saver.cpp"
 },
 
 {
   "directory": "/home/bota/catkin_ws_rm/src/quad_agent/build",
-  "command": "/usr/bin/c++  -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\\\"quad_agent\\\" -I../include -I/home/bota/catkin_ws_rm/devel/.private/mavros_msgs/include -I/home/bota/catkin_ws_rm/src/mavros/mavros_msgs/include -I/opt/ros/noetic/include -I/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/usr/include/opencv4  -g   -o CMakeFiles/mission_node.dir/src/mission.cpp.o -c /home/bota/catkin_ws_rm/src/quad_agent/src/mission.cpp",
+  "command": "/usr/bin/c++  -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\\\"quad_agent\\\" -I/usr/include/eigen3 -I../include -I/home/bota/catkin_ws_rm/devel/.private/mavros_msgs/include -I/home/bota/catkin_ws_rm/src/mavros/mavros_msgs/include -I/opt/ros/noetic/include -I/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/usr/include/opencv4  -g   -o CMakeFiles/mission_node.dir/src/mission.cpp.o -c /home/bota/catkin_ws_rm/src/quad_agent/src/mission.cpp",
   "file": "/home/bota/catkin_ws_rm/src/quad_agent/src/mission.cpp"
 },
 
 {
   "directory": "/home/bota/catkin_ws_rm/src/quad_agent/build",
-  "command": "/usr/bin/c++  -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\\\"quad_agent\\\" -I../include -I/home/bota/catkin_ws_rm/devel/.private/mavros_msgs/include -I/home/bota/catkin_ws_rm/src/mavros/mavros_msgs/include -I/opt/ros/noetic/include -I/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/usr/include/opencv4  -g   -o CMakeFiles/missionchecker_node.dir/src/mission_complete.cpp.o -c /home/bota/catkin_ws_rm/src/quad_agent/src/mission_complete.cpp",
+  "command": "/usr/bin/c++  -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\\\"quad_agent\\\" -I/usr/include/eigen3 -I../include -I/home/bota/catkin_ws_rm/devel/.private/mavros_msgs/include -I/home/bota/catkin_ws_rm/src/mavros/mavros_msgs/include -I/opt/ros/noetic/include -I/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/usr/include/opencv4  -g   -o CMakeFiles/missionchecker_node.dir/src/mission_complete.cpp.o -c /home/bota/catkin_ws_rm/src/quad_agent/src/mission_complete.cpp",
   "file": "/home/bota/catkin_ws_rm/src/quad_agent/src/mission_complete.cpp"
 },
 
 {
   "directory": "/home/bota/catkin_ws_rm/src/quad_agent/build",
-  "command": "/usr/bin/c++  -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\\\"quad_agent\\\" -Dutil_EXPORTS -I../include -I/home/bota/catkin_ws_rm/devel/.private/mavros_msgs/include -I/home/bota/catkin_ws_rm/src/mavros/mavros_msgs/include -I/opt/ros/noetic/include -I/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/usr/include/opencv4  -g -fPIC   -o CMakeFiles/util.dir/src/util.cpp.o -c /home/bota/catkin_ws_rm/src/quad_agent/src/util.cpp",
+  "command": "/usr/bin/c++  -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\\\"quad_agent\\\" -I/usr/include/eigen3 -I../include -I/home/bota/catkin_ws_rm/devel/.private/mavros_msgs/include -I/home/bota/catkin_ws_rm/src/mavros/mavros_msgs/include -I/opt/ros/noetic/include -I/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/usr/include/opencv4  -g   -o CMakeFiles/traj_gen_node.dir/src/traj_gen.cpp.o -c /home/bota/catkin_ws_rm/src/quad_agent/src/traj_gen.cpp",
+  "file": "/home/bota/catkin_ws_rm/src/quad_agent/src/traj_gen.cpp"
+},
+
+{
+  "directory": "/home/bota/catkin_ws_rm/src/quad_agent/build",
+  "command": "/usr/bin/c++  -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\\\"quad_agent\\\" -Dutil_EXPORTS -I/usr/include/eigen3 -I../include -I/home/bota/catkin_ws_rm/devel/.private/mavros_msgs/include -I/home/bota/catkin_ws_rm/src/mavros/mavros_msgs/include -I/opt/ros/noetic/include -I/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/usr/include/opencv4  -g -fPIC   -o CMakeFiles/util.dir/src/util.cpp.o -c /home/bota/catkin_ws_rm/src/quad_agent/src/util.cpp",
   "file": "/home/bota/catkin_ws_rm/src/quad_agent/src/util.cpp"
 },
 

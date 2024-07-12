@@ -1,0 +1,6 @@
+Launch Global Position (lat, lon, alt): [41.73733400000000, 12.51367010000000, 92.11300000000000]
+Launch Local Position (x, y, z): [-0.00286947470158, 0.00823835842311, 0.15923583507538]
+Launch Orientation (quaternion): [0.00183559268122, -0.00198133721395, 0.02492703705534, -0.99968569383638]
+Launch Orientation (roll-pitch-yaw): [3.13782380720125, 3.13772272676893, 3.09172593721624]
+Camera Parameters: wb = 0, sensor-mode=2
+---------------------
